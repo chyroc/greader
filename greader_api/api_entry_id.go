@@ -21,9 +21,9 @@ const readingList = "user/-/state/com.google/reading-list"
 func (r *Client) ListItemIDs(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	res, err := r.listItemIDs(ctx, req)
 	if err != nil {
-		r.renderErr(writer, err)
+		r.renderErr(ctx, writer, err)
 	} else {
-		r.renderData(writer, res)
+		r.renderData(ctx, writer, res)
 	}
 }
 
@@ -41,21 +41,22 @@ func (r *Client) listItemIDs(ctx context.Context, req HttpReader) (*listEntryIDs
 	}
 	// sinceTimeInterval := req.QueryString("ot")
 	since := time.Now().Add(-time.Hour * 24 * 30)
-	typ := ListEntryTypeAll
+	var readed *bool
+	var starred *bool
+	var feedID *string
 	if s == readerStateStarred {
 		// starred
-		typ = ListEntryTypeStarred
+		starred = &[]bool{true}[0]
 	} else if s == readingList && xt == readerStateRead {
 		// unread
-		typ = ListEntryTypeUnread
+		readed = &[]bool{false}[0]
 	} else if s == readingList {
 		// all for account
-		typ = ListEntryTypeAll
-	} else {
+	} else if s != "" {
 		// for feed, feedID = s
-		typ = ListEntryTypeFeed
+		feedID = &[]string{getFeedID(s)}[0]
 	}
-	continuationNew, ids, err := r.s.ListEntryIDs(ctx, typ, s, since, count, continuation)
+	continuationNew, ids, err := r.s.ListEntryIDs(ctx, readed, starred, feedID, since, count, continuation)
 	if err != nil {
 		return nil, err
 	}

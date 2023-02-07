@@ -12,9 +12,9 @@ import (
 func (r *Client) ListSubscription(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	res, err := r.listSubscription(ctx, req)
 	if err != nil {
-		r.renderErr(writer, err)
+		r.renderErr(ctx, writer, err)
 	} else {
-		r.renderData(writer, res)
+		r.renderData(ctx, writer, res)
 	}
 }
 

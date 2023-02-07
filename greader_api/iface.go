@@ -5,14 +5,9 @@ import (
 	"time"
 )
 
-type ListEntryType int
-
-const (
-	ListEntryTypeStarred ListEntryType = 1
-	ListEntryTypeUnread  ListEntryType = 2
-	ListEntryTypeFeed    ListEntryType = 3
-	ListEntryTypeAll     ListEntryType = 4
-)
+func GetContextAuth(ctx context.Context) (string, string) {
+	return getContext(ctx)
+}
 
 type IStore interface {
 	Auth(ctx context.Context, username, password string) (string, error)
@@ -25,8 +20,10 @@ type IStore interface {
 	AddSubscription(ctx context.Context, url string) (*Subscription, error)
 	DeleteSubscription(ctx context.Context, feedID string) error
 	RenameSubscription(ctx context.Context, feedID, title string) error
-	ChangeSubscriptionTagging(ctx context.Context, feedID string, addTags, removeTags string) error
+
+	ChangeSubscriptionTagging(ctx context.Context, feedID string, addTag, removeTag string) error
 
 	LoadEntry(ctx context.Context, articleIDs []string) ([]*Entry, error)
-	ListEntryIDs(ctx context.Context, typ ListEntryType, feedID string, since time.Time, count int64, continuation string) (string, []int64, error)
+	ListEntryIDs(ctx context.Context, readed, starred *bool, feedID *string, since time.Time, count int64, continuation string) (string, []int64, error)
+	ChangeEntryStatus(ctx context.Context, articleIDs []string, read, starred *bool) error
 }

@@ -10,14 +10,17 @@ type httpReader struct {
 	request *http.Request
 }
 
-func (r *httpReader) Form(key string) ([]string, bool) {
-	val, ok := r.request.Form[key]
-	return val, ok
+func (r *httpReader) HeaderString(key string) string {
+	val, _ := r.request.Header[key]
+	if len(val) > 0 {
+		return val[0]
+	}
+	return ""
 }
 
-func (r *httpReader) Header(key string) ([]string, bool) {
-	val, ok := r.request.Header[key]
-	return val, ok
+func (r *httpReader) FormList(key string) []string {
+	val, _ := r.request.Form[key]
+	return val
 }
 
 func (r *httpReader) FormString(key string) string {

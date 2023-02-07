@@ -16,9 +16,9 @@ import (
 func (r *Client) TagDelete(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	err := r.tagDelete(ctx, req)
 	if err != nil {
-		r.renderErr(writer, err)
+		r.renderErr(ctx, writer, err)
 	} else {
-		r.renderData(writer, nil)
+		r.renderData(ctx, writer, nil)
 	}
 }
 

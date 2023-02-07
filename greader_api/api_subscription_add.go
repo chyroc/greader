@@ -14,9 +14,9 @@ import (
 func (r *Client) AddSubscription(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	res, err := r.addSubscription(ctx, req)
 	if err != nil {
-		r.renderErr(writer, err)
+		r.renderErr(ctx, writer, err)
 	} else {
-		r.renderData(writer, res)
+		r.renderData(ctx, writer, res)
 	}
 }
 
@@ -30,5 +30,5 @@ func (r *Client) addSubscription(ctx context.Context, req HttpReader) (*AddSubsc
 		return &AddSubscriptionResult{NumResults: 0}, nil
 	}
 
-	return &AddSubscriptionResult{NumResults: 1, FeedID: subscription.FeedID}, nil
+	return &AddSubscriptionResult{NumResults: 1, FeedID: buildFeedID(subscription.FeedID)}, nil
 }

@@ -18,9 +18,9 @@ import (
 func (r *Client) LoadItem(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	res, err := r.loadItem(ctx, req)
 	if err != nil {
-		r.renderErr(writer, err)
+		r.renderErr(ctx, writer, err)
 	} else {
-		r.renderData(writer, res)
+		r.renderData(ctx, writer, res)
 	}
 }
 
@@ -29,16 +29,7 @@ func (r *Client) loadItem(ctx context.Context, req HttpReader) (*loadEntryList, 
 		return nil, err
 	}
 
-	articleIDs := []string{}
-	for _, v := range req.FormList("i") {
-		idHex := getTaggedItemID(v)
-		id, err := hex16ToInt(idHex)
-		if err != nil {
-			// ignore
-		} else {
-			articleIDs = append(articleIDs, strconv.FormatInt(id, 10))
-		}
-	}
+	articleIDs := getEntryHexIDs(req.FormList("i"))
 
 	res, err := r.s.LoadEntry(ctx, articleIDs)
 	if err != nil {
@@ -55,4 +46,18 @@ func (r *Client) loadItem(ctx context.Context, req HttpReader) (*loadEntryList, 
 		// Updated: 0,
 		Entries: res,
 	}, nil
+}
+
+func getEntryHexIDs(list []string) []string {
+	articleIDs := []string{}
+	for _, v := range list {
+		idHex := getTaggedItemHexID(v)
+		id, err := hex16ToInt(idHex)
+		if err != nil {
+			// ignore
+		} else {
+			articleIDs = append(articleIDs, strconv.FormatInt(id, 10))
+		}
+	}
+	return articleIDs
 }

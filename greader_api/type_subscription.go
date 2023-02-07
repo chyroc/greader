@@ -34,17 +34,32 @@ type AddSubscriptionResult struct {
 */
 
 type Subscription struct {
-	FeedID      string     `json:"id"`
-	Name        string     `json:"title"`
-	Categories  []Category `json:"categories"`
-	FeedURL     string     `json:"url"`
-	HomePageURL string     `json:"htmlUrl"`
-	IconURL     string     `json:"iconUrl"`
+	FeedID      string      `json:"id"`
+	Name        string      `json:"title"`
+	Categories  []*Category `json:"categories"`
+	FeedURL     string      `json:"url"`
+	HomePageURL string      `json:"htmlUrl"`
+	IconURL     string      `json:"iconUrl"`
 }
 
 type Category struct {
 	ID    string `json:"id"` // "user/-/label/未分类"
 	Label string `json:"label"`
+}
+
+func BuildCategory(name string) *Category {
+	return &Category{
+		ID:    "user/-/label/" + name,
+		Label: name,
+	}
+}
+
+func BuildCategories(names []string) []*Category {
+	categories := make([]*Category, len(names))
+	for i, name := range names {
+		categories[i] = BuildCategory(name)
+	}
+	return categories
 }
 
 type subscriptionList struct {

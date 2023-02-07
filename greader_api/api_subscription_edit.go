@@ -27,9 +27,9 @@ import (
 func (r *Client) EditSubscription(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	err := r.editSubscription(ctx, req)
 	if err != nil {
-		r.renderErr(writer, err)
+		r.renderErr(ctx, writer, err)
 	} else {
-		r.renderData(writer, map[string]interface{}{})
+		r.renderData(ctx, writer, nil)
 	}
 }
 
@@ -42,21 +42,21 @@ func (r *Client) editSubscription(ctx context.Context, req HttpReader) error {
 
 	switch req.FormString("ac") {
 	case "unsubscribe":
-		return r.s.DeleteSubscription(ctx, feedID)
+		return r.s.DeleteSubscription(ctx, getFeedID(feedID))
 	case "edit":
 		addTag := req.FormString("a")
 		removeTag := req.FormString("r")
 		title := req.FormString("t")
 
 		if addTag != "" || removeTag != "" {
-			err := r.s.ChangeSubscriptionTagging(ctx, feedID, addTag, removeTag)
+			err := r.s.ChangeSubscriptionTagging(ctx, getFeedID(feedID), addTag, removeTag)
 			if err != nil {
 				return err
 			}
 		}
 
 		if title != "" {
-			err := r.s.RenameSubscription(ctx, feedID, title)
+			err := r.s.RenameSubscription(ctx, getFeedID(feedID), title)
 			if err != nil {
 				return err
 			}

@@ -8,9 +8,9 @@ import (
 func (r *Client) TagList(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	res, err := r.tagList(ctx, req)
 	if err != nil {
-		r.renderErr(writer, err)
+		r.renderErr(ctx, writer, err)
 	} else {
-		r.renderData(writer, res)
+		r.renderData(ctx, writer, res)
 	}
 }
 
@@ -22,6 +22,10 @@ func (r *Client) tagList(ctx context.Context, req HttpReader) (*tagList, error) 
 	tagNames, err := r.s.ListTag(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(tagNames) == 0 {
+		tagNames = []string{"default"}
 	}
 
 	return &tagList{

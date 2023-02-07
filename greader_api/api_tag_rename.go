@@ -19,8 +19,8 @@ func (r *Client) TagRename(ctx context.Context, req HttpReader, writer http.Resp
 
 	err := r.s.RenameTag(ctx, oldTagName, newTagName)
 	if err != nil {
-		r.renderErr(writer, err)
+		r.renderErr(ctx, writer, err)
 	} else {
-		r.renderData(writer, nil)
+		r.renderData(ctx, writer, nil)
 	}
 }

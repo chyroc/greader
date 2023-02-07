@@ -25,8 +25,10 @@ type tagList struct {
 	Tags []*Tag `json:"tags,omitempty"`
 }
 
-const tagDefaultStarred = "user/-/state/com.google/starred"
-const tagTypeFolder = "folder"
+const (
+	tagDefaultStarred = "user/-/state/com.google/starred"
+	tagTypeFolder     = "folder"
+)
 
 func buildTads(tagNames []string) []*Tag {
 	var tags []*Tag
@@ -36,7 +38,7 @@ func buildTads(tagNames []string) []*Tag {
 
 	for _, tagName := range tagNames {
 		tags = append(tags, &Tag{
-			ID:   tagName,
+			ID:   "user/-/label/" + tagName,
 			Type: tagTypeFolder,
 		})
 	}
