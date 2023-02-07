@@ -1,3 +1,3 @@
-module github.com/chyroc/fever_rss
+module github.com/chyroc/greader
 
 go 1.19
