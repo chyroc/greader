@@ -23,7 +23,11 @@ func main() {
 		return
 	}
 
-	cli := greader_api.New(&greader_api.ClientConfig{Store: db, Logger: logger})
+	cli := greader_api.New(&greader_api.ClientConfig{
+		Store:       db,
+		Logger:      logger,
+		FetchLogger: logger,
+	})
 
 	go func() {
 		for {

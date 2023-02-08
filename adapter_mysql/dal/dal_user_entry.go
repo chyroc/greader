@@ -19,10 +19,10 @@ func (r *Client) UpdateUserEntryStatus(userID int64, ids []int64, read, star *bo
 	ids = internal.Unique(ids)
 	updated := map[string]interface{}{}
 	if read != nil {
-		updated["read"] = *read
+		updated["readed"] = *read
 	}
 	if star != nil {
-		updated["star"] = *star
+		updated["starred"] = *star
 	}
 
 	if len(updated) > 0 {

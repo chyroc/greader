@@ -15,20 +15,20 @@ func (r *Client) FetchRss() error {
 
 	feedURLs, err := r.s.ListFeedURL(ctx)
 	if err != nil {
-		r.log.Error(ctx, "[FetchRss] ListFeedURL fail, err=%s", err)
+		r.fetchLogger.Error(ctx, "[FetchRss] ListFeedURL fail, err=%s", err)
 		return err
 	}
 
 	for _, feedURL := range feedURLs {
 		feed, err := p.ParseURL(feedURL)
 		if err != nil {
-			r.log.Error(ctx, "[FetchRss] ParseURL fail, url=%s, err=%s", feedURL, err)
+			r.fetchLogger.Error(ctx, "[FetchRss] ParseURL fail, url=%s, err=%s", feedURL, err)
 			continue
 		}
 
 		err = r.s.AddFeedEntry(ctx, feedURL, rssItemToEntry(feed.Items))
 		if err != nil {
-			r.log.Error(ctx, "[FetchRss] AddFeedEntry fail, url=%s, err=%s", feedURL, err)
+			r.fetchLogger.Error(ctx, "[FetchRss] AddFeedEntry fail, url=%s, err=%s", feedURL, err)
 			continue
 		}
 	}

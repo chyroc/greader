@@ -3,19 +3,22 @@ package greader_api
 import "net/http"
 
 type Client struct {
-	s   IGReaderStore
-	log ILogger
+	s           IGReaderStore
+	log         ILogger
+	fetchLogger ILogger
 }
 
 type ClientConfig struct {
-	Store  IGReaderStore
-	Logger ILogger
+	Store       IGReaderStore
+	Logger      ILogger
+	FetchLogger ILogger
 }
 
 func New(config *ClientConfig) *Client {
 	return &Client{
-		s:   config.Store,
-		log: NewDefaultLogger(),
+		s:           config.Store,
+		log:         config.Logger,
+		fetchLogger: config.FetchLogger,
 	}
 }
 
@@ -24,6 +27,7 @@ func (r *Client) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	path := request.URL.Path
 	req := WrapStdHttpRequest(request)
 	ctx := setContextPath(r.setAuth(request.Context(), req), path)
+
 	r.log.Info(ctx, "[request_] method=%s, path=%s", method, path)
 
 	if err := request.ParseForm(); err != nil {

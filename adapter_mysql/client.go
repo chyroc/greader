@@ -306,12 +306,12 @@ func (r *MySQLClient) ListEntryIDs(ctx context.Context, username string, readed,
 }
 
 func (r *MySQLClient) ListFeedURL(ctx context.Context) ([]string, error) {
-	r.log.Info(ctx, "[ListFeedURL]")
+	// r.log.Info(ctx, "[ListFeedURL]")
 	return r.db.ListFeedURL()
 }
 
 func (r *MySQLClient) AddFeedEntry(ctx context.Context, feedURL string, entryList []*greader_api.Entry) error {
-	r.log.Info(ctx, "[AddFeedEntry] feedURL=%s, entryList.len=%d", feedURL, len(entryList))
+	// r.log.Info(ctx, "[AddFeedEntry] feedURL=%s, entryList.len=%d", feedURL, len(entryList))
 
 	feedPO, err := r.db.GetFeedByURL(feedURL)
 	if err != nil {
