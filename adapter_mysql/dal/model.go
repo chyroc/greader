@@ -3,6 +3,7 @@ package dal
 import (
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -22,3 +23,14 @@ func New(db *gorm.DB) *Client {
 }
 
 const defaultTagName = "default"
+
+func isDuplicateErr(err error) bool {
+	if err == nil {
+		return false
+	}
+	m, ok := err.(*mysql.MySQLError)
+	if !ok {
+		return false
+	}
+	return m.Number == 1062
+}

@@ -1,8 +1,8 @@
 package dal
 
 type ModelUserFeedRelation struct {
-	Id      int64  `gorm:"column:id; primary_key; auto_increment"`
-	UserID  int64  `gorm:"column:user_id; index:username"`
+	BaseModel
+	UserID  int64  `gorm:"column:user_id"`
 	FeedID  int64  `gorm:"column:feed_id"`
 	TagName string `gorm:"column:tag_name"`
 	Title   string `gorm:"column:title"`
@@ -21,6 +21,15 @@ func (r *Client) ListUserFeed(userID int64) ([]*ModelUserFeedRelation, error) {
 	}
 
 	return pos, nil
+}
+
+func (r *Client) ListUserFeedIDs(userID int64) ([]int64, error) {
+	var ids []int64
+	err := r.db.
+		Model(&ModelUserFeedRelation{}).
+		Where("user_id = ?", userID).
+		Pluck("feed_id", &ids).Error
+	return ids, err
 }
 
 func (r *Client) CreateUserFeed(userID, feedID int64, title string) error {

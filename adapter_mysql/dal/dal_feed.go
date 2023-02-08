@@ -1,5 +1,7 @@
 package dal
 
+import "github.com/chyroc/greader/adapter_mysql/internal"
+
 type ModelFeed struct {
 	BaseModel
 	FeedURL     string `gorm:"column:feed_url"`
@@ -11,6 +13,7 @@ func (ModelFeed) TableName() string {
 }
 
 func (r *Client) MGetFeed(ids []int64) (map[int64]*ModelFeed, error) {
+	ids = internal.Unique(ids)
 	var pos []*ModelFeed
 	err := r.db.Where("id in (?)", ids).Find(&pos).Error
 	if err != nil {

@@ -3,8 +3,8 @@ package greader_api
 import (
 	"context"
 	"net/http"
-	"sort"
 	"strconv"
+	"time"
 )
 
 // api: https://github.com/Ranchero-Software/NetNewsWire/blob/mac-6.1.1b1/Account/Sources/Account/ReaderAPI/ReaderAPICaller.swift#L502
@@ -33,19 +33,26 @@ func (r *Client) loadItem(ctx context.Context, req HttpReader) (*loadEntryList, 
 		return nil, err
 	}
 
-	res, err := r.s.LoadEntry(ctx, entryIDs)
+	res, err := r.s.LoadEntry(ctx, username, entryIDs)
 	if err != nil {
 		return nil, err
 	}
 
-	sort.Slice(res, func(i, j int) bool {
-		// TODO
-		return true
-	})
+	for _, v := range res {
+		id, err := strconv.ParseInt(v.ID, 10, 64)
+		if err == nil {
+			v.ID = "tag:google.com,2005:reader/item/" + intToHex16(id)
+		}
+		tmp := []string{"user/-/state/com.google/reading-list"}
+		for _, v := range v.Categories {
+			tmp = append(tmp, buildUserLabelName(v))
+		}
+		v.Categories = tmp
+	}
 
 	return &loadEntryList{
-		ID: readingList,
-		// Updated: 0,
+		ID:      readingList,
+		Updated: time.Now().Unix(),
 		Entries: res,
 	}, nil
 }

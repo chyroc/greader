@@ -38,7 +38,7 @@ func buildTads(tagNames []string) []*Tag {
 
 	for _, tagName := range tagNames {
 		tags = append(tags, &Tag{
-			ID:   "user/-/label/" + tagName,
+			ID:   buildUserLabelName(tagName),
 			Type: tagTypeFolder,
 		})
 	}

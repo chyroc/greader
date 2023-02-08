@@ -4,7 +4,7 @@ import (
 	"github.com/chyroc/greader/adapter_mysql/internal"
 )
 
-func (r *Client) ListUserFeedTagNames(userID int64) ([]string, error) {
+func (r *Client) ListUserTagNames(userID int64) ([]string, error) {
 	var pos []*ModelUserFeedRelation
 	err := r.db.Where("user_id = ?", userID).Find(&pos).Error
 	if err != nil {
@@ -13,6 +13,22 @@ func (r *Client) ListUserFeedTagNames(userID int64) ([]string, error) {
 
 	tags := internal.Map(pos, func(i *ModelUserFeedRelation) string { return i.TagName })
 	return tags, nil
+}
+
+func (r *Client) ListUserFeedTagNames(userID int64, feedIDs []int64) (map[int64]string, error) {
+	feedIDs = internal.Unique(feedIDs)
+	var pos []*ModelUserFeedRelation
+	err := r.db.Where("user_id = ? and feed_id in (?)", userID, feedIDs).Find(&pos).Error
+	if err != nil {
+		return nil, err
+	}
+
+	res := map[int64]string{}
+	for _, v := range pos {
+		res[v.FeedID] = v.TagName
+	}
+
+	return res, nil
 }
 
 func (r *Client) RenameUserFeedTag(userID int64, oldTag, newTag string) error {

@@ -44,11 +44,11 @@ type Entry struct {
 }
 
 type EntrySummary struct {
-	Content string `json:"content,omitempty"`
+	Content string `json:"content"`
 }
 
 type AlternateLocation struct {
-	URL string `json:"href,omitempty"`
+	URL string `json:"href"`
 }
 
 type EntryOrigin struct {
@@ -58,6 +58,6 @@ type EntryOrigin struct {
 
 type loadEntryList struct {
 	ID      string   `json:"id"`
-	Updated int      `json:"updated"`
+	Updated int64    `json:"updated"`
 	Entries []*Entry `json:"items"`
 }

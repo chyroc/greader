@@ -1,5 +1,7 @@
 package dal
 
+import "github.com/chyroc/greader/adapter_mysql/internal"
+
 type ModelEntry struct {
 	BaseModel
 
@@ -27,7 +29,32 @@ func (r *Client) MGetEntry(ids []int64) (map[int64]*ModelEntry, error) {
 	return res, nil
 }
 
+func (r *Client) CreateEntry(pos *ModelEntry) error {
+	if err := r.db.Create(&pos).Error; err != nil {
+		if isDuplicateErr(err) {
+			return nil
+		}
+		return err
+	}
+	return nil
+}
+
 func (r *Client) CreateEntries(pos []*ModelEntry) error {
 	err := r.db.Create(&pos).Error
 	return err
+}
+
+func (r *Client) ListEntryByLatestID(feedIDs []int64, latestEntryID int64, limit int) ([]*ModelEntry, error) {
+	feedIDs = internal.Unique(feedIDs)
+	var pos []*ModelEntry
+	err := r.db.
+		Where("feed_id in (?) and id > ?", feedIDs, latestEntryID).
+		Order("id desc").
+		Limit(limit).
+		Find(&pos).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return pos, nil
 }

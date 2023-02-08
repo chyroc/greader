@@ -2,6 +2,7 @@ package dal
 
 import (
 	"errors"
+	"fmt"
 )
 
 type ModelUser struct {
@@ -26,6 +27,7 @@ func (r *Client) GetUser(username string) (*ModelUser, error) {
 }
 
 func (r *Client) Login(username, hash string) (string, error) {
+	fmt.Println(username, hash) // TODO, debug
 	var pos []*ModelUser
 	if err := r.db.
 		Where("username = ? and hash = ?", username, hash).

@@ -29,7 +29,7 @@ func New(dsn string, logger greader_api.ILogger) (*MySQLClient, error) {
 }
 
 func (r *MySQLClient) Login(ctx context.Context, username, password string) (string, error) {
-	return r.db.Login(username, password)
+	return r.db.Login(username, internal.CalSha1(username+":"+password))
 }
 
 func (r *MySQLClient) ListTag(ctx context.Context, username string) ([]string, error) {
@@ -38,7 +38,7 @@ func (r *MySQLClient) ListTag(ctx context.Context, username string) ([]string, e
 		return nil, err
 	}
 
-	tagNames, err := r.db.ListUserFeedTagNames(userID)
+	tagNames, err := r.db.ListUserTagNames(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,6 @@ func (r *MySQLClient) AddSubscription(ctx context.Context, username, url string)
 	if err != nil {
 		return nil, err
 	}
-	r.log.Info(ctx, "add subscription, feed=%s", internal.Json(feed))
 
 	subscriptionPO, err := r.db.CreateFeed(url, feed.Link)
 	if err != nil {
@@ -181,23 +180,63 @@ func (r *MySQLClient) UpdateSubscriptionTag(ctx context.Context, username, feedI
 	return nil
 }
 
-func (r *MySQLClient) LoadEntry(ctx context.Context, entryIDs []string) ([]*greader_api.Entry, error) {
+func (r *MySQLClient) LoadEntry(ctx context.Context, username string, entryIDs []string) ([]*greader_api.Entry, error) {
+	userID, err := r.validAuth(ctx, username)
+	if err != nil {
+		return nil, err
+	}
+
 	ids := internal.StringListToInt(entryIDs)
 
-	pos, err := r.db.MGetEntry(ids)
+	entryPOs, err := r.db.MGetEntry(ids)
+	if err != nil {
+		return nil, err
+	}
+
+	feedIDs := []int64{}
+	for _, v := range entryPOs {
+		feedIDs = append(feedIDs, v.FeedID)
+	}
+	feedPOs, err := r.db.MGetFeed(feedIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	tagNames, err := r.db.ListUserFeedTagNames(userID, feedIDs)
 	if err != nil {
 		return nil, err
 	}
 
 	res := internal.MapNoneEmpty(ids, func(id int64) *greader_api.Entry {
-		item := pos[id]
+		item := entryPOs[id]
 		if item == nil {
 			return nil
 		}
+		feedPO := feedPOs[item.FeedID]
+		if feedPO == nil {
+			return nil
+		}
+
+		alternates := []*greader_api.AlternateLocation{{URL: item.URL}}
+		categories := []string{}
+		if tagNames[item.FeedID] != "" {
+			categories = append(categories, tagNames[item.FeedID])
+		}
+
 		return &greader_api.Entry{
-			ID:     strconv.FormatInt(item.ID, 10),
-			Title:  item.Title,
-			Author: item.Author,
+			ID:                 strconv.FormatInt(item.ID, 10),
+			Title:              item.Title,
+			Author:             item.Author,
+			PublishedTimestamp: item.CreatedAt.Unix(),
+			CrawledTimestamp:   strconv.FormatInt(item.CreatedAt.UnixMilli(), 10),
+			TimestampUsec:      strconv.FormatInt(item.CreatedAt.UnixMicro(), 10),
+			Summary:            &greader_api.EntrySummary{Content: ""}, // TODO
+			Alternates:         alternates,
+			Categories:         categories,
+			Origin: &greader_api.EntryOrigin{
+				StreamID: fmt.Sprintf("feed/%d", feedPO.ID),
+				Title:    "",
+			},
 		}
 	})
 
@@ -221,7 +260,42 @@ func (r *MySQLClient) ListEntryIDs(ctx context.Context, username string, readed,
 		return "", nil, err
 	}
 
-	pos, err := r.db.ListUserEntry(userID, readed, starred, feedID)
+	latestEntryID, err := r.db.GetUserEntryLatestID(userID)
+	if err != nil {
+		return "", nil, err
+	}
+	r.log.Info(ctx, "[ListEntryIDs] latest_entry_id=%d", latestEntryID)
+
+	var feedIDs []int64
+	if feedID != nil {
+		id, err := strconv.ParseInt(*feedID, 10, 64)
+		if err != nil {
+			return "", nil, err
+		}
+		feedIDs = append(feedIDs, id)
+	} else {
+		feedIDs, err = r.db.ListUserFeedIDs(userID)
+		if err != nil {
+			return "", nil, err
+		}
+	}
+	r.log.Info(ctx, "[ListEntryIDs] feed_ids=%+v", feedIDs)
+
+	unreadEntryList, err := r.db.ListEntryByLatestID(feedIDs, latestEntryID, int(count))
+	if err != nil {
+		return "", nil, err
+	}
+
+	go func() {
+		for _, v := range unreadEntryList {
+			err = r.db.CreateUserEntry(userID, v.FeedID, v.ID)
+			if err != nil {
+				r.log.Error(ctx, "[ListEntryIDs] CreateUserEntry username=%s, feed_id=%d, err=%s", username, v.FeedID, err)
+			}
+		}
+	}()
+
+	pos, err := r.db.ListUserEntry(userID, readed, starred, feedID, int(count))
 	if err != nil {
 		return "", nil, err
 	}
@@ -237,14 +311,13 @@ func (r *MySQLClient) ListFeedURL(ctx context.Context) ([]string, error) {
 }
 
 func (r *MySQLClient) AddFeedEntry(ctx context.Context, feedURL string, entryList []*greader_api.Entry) error {
-	r.log.Info(ctx, "[AddFeedEntry] feedURL=%s, entryList=%s", feedURL, internal.Json(entryList))
+	r.log.Info(ctx, "[AddFeedEntry] feedURL=%s, entryList.len=%d", feedURL, len(entryList))
 
 	feedPO, err := r.db.GetFeedByURL(feedURL)
 	if err != nil {
 		return err
 	}
 
-	pos := []*dal.ModelEntry{}
 	for _, v := range entryList {
 		url := ""
 		for _, v := range v.Alternates {
@@ -256,14 +329,18 @@ func (r *MySQLClient) AddFeedEntry(ctx context.Context, feedURL string, entryLis
 		if url == "" {
 			continue
 		}
-		pos = append(pos, &dal.ModelEntry{
+		entryPO := &dal.ModelEntry{
 			FeedID: feedPO.ID,
 			URL:    url,
 			Title:  v.Title,
 			Author: v.Author,
-		})
+		}
+		if err = r.db.CreateEntry(entryPO); err != nil {
+			r.log.Error(ctx, "[AddFeedEntry] CreateEntry err=%s", err)
+		}
 	}
-	return r.db.CreateEntries(pos)
+
+	return nil
 }
 
 func (r *MySQLClient) validAuth(ctx context.Context, username string) (int64, error) {

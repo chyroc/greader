@@ -1,12 +1,14 @@
 package dal
 
+import "github.com/chyroc/greader/adapter_mysql/internal"
+
 type ModeUserEntryRelation struct {
-	Id      int64 `gorm:"column:id; primary_key; auto_increment"`
-	UserID  int64 `gorm:"column:user_id; index:username"`
+	BaseModel
+	UserID  int64 `gorm:"column:user_id"`
 	FeedID  int64 `gorm:"column:feed_id"`
 	EntryID int64 `gorm:"column:entry_id"`
-	Readed  bool  `gorm:"column:readed; default:false"`
-	Starred bool  `gorm:"column:starred; default:false"`
+	Readed  bool  `gorm:"column:readed"`
+	Starred bool  `gorm:"column:starred"`
 }
 
 func (ModeUserEntryRelation) TableName() string {
@@ -14,6 +16,7 @@ func (ModeUserEntryRelation) TableName() string {
 }
 
 func (r *Client) UpdateUserEntryStatus(userID int64, ids []int64, read, star *bool) error {
+	ids = internal.Unique(ids)
 	updated := map[string]interface{}{}
 	if read != nil {
 		updated["read"] = *read
@@ -32,7 +35,7 @@ func (r *Client) UpdateUserEntryStatus(userID int64, ids []int64, read, star *bo
 	return nil
 }
 
-func (r *Client) ListUserEntry(userID int64, readed, starred *bool, feedID *string) ([]*ModeUserEntryRelation, error) {
+func (r *Client) ListUserEntry(userID int64, readed, starred *bool, feedID *string, count int) ([]*ModeUserEntryRelation, error) {
 	db := r.db.Where("user_id = ?", userID)
 	if readed != nil {
 		db = db.Where("readed = ?", *readed)
@@ -43,6 +46,9 @@ func (r *Client) ListUserEntry(userID int64, readed, starred *bool, feedID *stri
 	if feedID != nil {
 		db = db.Where("feed_id = ?", *feedID)
 	}
+	if count > 0 {
+		db = db.Limit(count)
+	}
 
 	var pos []*ModeUserEntryRelation
 	err := db.Find(&pos).Error
@@ -50,4 +56,21 @@ func (r *Client) ListUserEntry(userID int64, readed, starred *bool, feedID *stri
 		return nil, err
 	}
 	return pos, nil
+}
+
+func (r *Client) CreateUserEntry(userID, feedID, entryID int64) error {
+	err := r.db.Create(&ModeUserEntryRelation{
+		UserID:  userID,
+		FeedID:  feedID,
+		EntryID: entryID,
+		Readed:  false,
+		Starred: false,
+	}).Error
+	if err != nil {
+		if isDuplicateErr(err) {
+			return nil
+		}
+		return err
+	}
+	return nil
 }

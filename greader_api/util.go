@@ -53,7 +53,11 @@ func getUserLabelName(s string) string {
 	return s[strings.Index(s, "/label/")+len("/label/"):]
 }
 
-func buildUserLabelName(s string) {
+func buildUserLabelName(s string) string {
+	if strings.HasPrefix(s, "user/-/label/") {
+		return s
+	}
+	return "user/-/label/" + s
 }
 
 func getFeedID(feedID string) string {
@@ -72,4 +76,8 @@ func getTaggedItemHexID(s string) string {
 
 func hex16ToInt(s string) (int64, error) {
 	return strconv.ParseInt(s, 16, 64)
+}
+
+func intToHex16(i int64) string {
+	return strconv.FormatInt(i, 16)
 }

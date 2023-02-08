@@ -45,3 +45,17 @@ func MapNoneEmpty[T any, F comparable](list []T, f func(item T) F) []F {
 	}
 	return res
 }
+
+func Unique[T comparable](list []T) []T {
+	if len(list) == 0 {
+		return list
+	}
+	res := make([]T, 0, len(list))
+	res = append(res, list[0])
+	for i := 1; i < len(list); i++ {
+		if list[i] != list[i-1] {
+			res = append(res, list[i])
+		}
+	}
+	return res
+}

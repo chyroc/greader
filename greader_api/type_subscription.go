@@ -49,7 +49,7 @@ type Category struct {
 
 func BuildCategory(name string) *Category {
 	return &Category{
-		ID:    "user/-/label/" + name,
+		ID:    buildUserLabelName(name),
 		Label: name,
 	}
 }
@@ -67,16 +67,15 @@ type subscriptionList struct {
 }
 
 func buildFeedID(id string) string {
+	if strings.HasPrefix(id, "feed/") {
+		return id
+	}
 	return "feed/" + id
 }
 
 func (r *Subscription) reBuild() {
-	if !strings.HasPrefix(r.FeedID, "feed/") {
-		r.FeedID = buildFeedID(r.FeedID)
-	}
+	r.FeedID = buildFeedID(r.FeedID)
 	for _, v := range r.Categories {
-		if !strings.HasPrefix(v.ID, "user/-/label/") {
-			v.ID = "user/-/label/" + v.ID
-		}
+		v.ID = buildUserLabelName(v.ID)
 	}
 }

@@ -41,11 +41,12 @@ type IGReaderStore interface {
 	ListEntryIDs(ctx context.Context, username string, readed, starred *bool, feedID *string, since time.Time, count int64, continuation string) (string, []int64, error)
 	// UpdateEntry update entry's status
 	UpdateEntry(ctx context.Context, username string, entryIDs []string, read, starred *bool) error
+	// LoadEntry load entry by entry ids
+	LoadEntry(ctx context.Context, username string, entryIDs []string) ([]*Entry, error)
 
 	// global
 
 	// LoadEntry load entry by entry ids
-	LoadEntry(ctx context.Context, entryIDs []string) ([]*Entry, error)
 	// ListFeedURL list all feed url
 	ListFeedURL(ctx context.Context) ([]string, error)
 	// AddFeedEntry add feed entry

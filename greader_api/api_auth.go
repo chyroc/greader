@@ -26,5 +26,5 @@ func (r *Client) auth(ctx context.Context, reader HttpReader) (string, error) {
 	}
 	return fmt.Sprintf("SID=%s\n"+
 		"LSID=null\n"+
-		"Login=%s/%s\n", username, username, authInfo), nil
+		"Auth=%s/%s\n", username, username, authInfo), nil
 }
