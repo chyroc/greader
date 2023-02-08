@@ -1,5 +1,7 @@
 # greader
 
+RSS service, providing api similar to google reader.
+
 ## Ref
 
 - https://ranchero.com/downloads/GoogleReaderAPI-2009.pdf
