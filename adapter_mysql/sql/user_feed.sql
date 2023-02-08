@@ -1,5 +1,3 @@
-drop table if exists `user_feed`;
-
 CREATE TABLE `user_feed`
 (
     `id`         bigint(20) unsigned NOT NULL AUTO_INCREMENT,

@@ -1,5 +1,3 @@
-drop table if exists `entry`;
-
 CREATE TABLE `entry`
 (
     `id`         bigint(20) unsigned NOT NULL AUTO_INCREMENT,
