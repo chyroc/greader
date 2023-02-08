@@ -34,29 +34,31 @@ func (r *Client) EditSubscription(ctx context.Context, req HttpReader, writer ht
 }
 
 func (r *Client) editSubscription(ctx context.Context, req HttpReader) error {
+	username := getContextUsername(ctx)
+	feedID := getFeedID(req.FormString("s"))
+	action := req.FormString("ac")
+	addTag := getUserLabelName(req.FormString("a"))
+	removeTag := getUserLabelName(req.FormString("r"))
+	title := req.FormString("t")
+	r.log.Info(ctx, "[EditSubscription], username=%s, feedID=%s, action=%s, removeTag=%s, addTag=%s, title=%s", username, feedID, action, removeTag, addTag, title)
+
 	if err := r.mustJson(req); err != nil {
 		return err
 	}
 
-	feedID := req.FormString("s")
-
-	switch req.FormString("ac") {
+	switch action {
 	case "unsubscribe":
-		return r.s.DeleteSubscription(ctx, getFeedID(feedID))
+		return r.s.DeleteSubscription(ctx, username, feedID)
 	case "edit":
-		addTag := req.FormString("a")
-		removeTag := req.FormString("r")
-		title := req.FormString("t")
-
 		if addTag != "" || removeTag != "" {
-			err := r.s.ChangeSubscriptionTagging(ctx, getFeedID(feedID), addTag, removeTag)
+			err := r.s.UpdateSubscriptionTag(ctx, username, feedID, addTag, removeTag)
 			if err != nil {
 				return err
 			}
 		}
 
 		if title != "" {
-			err := r.s.RenameSubscription(ctx, getFeedID(feedID), title)
+			err := r.s.UpdateSubscriptionTitle(ctx, username, feedID, title)
 			if err != nil {
 				return err
 			}

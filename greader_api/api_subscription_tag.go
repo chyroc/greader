@@ -21,9 +21,12 @@ func (r *Client) EditSubscriptionStatus(ctx context.Context, req HttpReader, wri
 }
 
 func (r *Client) editSubscriptionStatus(ctx context.Context, req HttpReader) error {
-	articleIDs := getEntryHexIDs(req.FormList("i"))
+	username := getContextUsername(ctx)
+	entryIDs := getEntryHexIDs(req.FormList("i"))
 	add := req.FormString("a")    // add
 	remove := req.FormString("r") // remove
+	r.log.Info(ctx, "[EditSubscriptionStatus] username=%s, entryIDs=%+v, add=%s, remove=%s", username, entryIDs, add, remove)
+
 	state := add
 	if state == "" {
 		state = remove
@@ -52,5 +55,5 @@ func (r *Client) editSubscriptionStatus(ctx context.Context, req HttpReader) err
 		}
 	}
 
-	return r.s.ChangeEntryStatus(ctx, articleIDs, readed, starred)
+	return r.s.UpdateEntry(ctx, username, entryIDs, readed, starred)
 }

@@ -18,42 +18,36 @@ type Client struct {
 	log greader_api.ILogger
 }
 
-var _ greader_api.IStore = (*Client)(nil)
+var _ greader_api.IGReaderStore = (*Client)(nil)
 
-func New(dsn string) (*Client, error) {
+func New(dsn string, logger greader_api.ILogger) (*Client, error) {
 	db, err := newDB(dsn)
 	if err != nil {
 		return nil, err
 	}
-	return &Client{db: dal.New(db), log: greader_api.NewDefaultLogger()}, nil
+	return &Client{db: dal.New(db), log: logger}, nil
 }
 
-func assert(err error) {
-	if err != nil {
-		panic(err)
-	}
+func (r *Client) Login(ctx context.Context, username, password string) (string, error) {
+	return r.db.Login(username, password)
 }
 
-func (r *Client) Auth(ctx context.Context, username, password string) (string, error) {
-	return r.db.CheckAuth(username, password)
-}
-
-func (r *Client) ListTag(ctx context.Context) ([]string, error) {
-	userID, err := r.validAuth(ctx)
+func (r *Client) ListTag(ctx context.Context, username string) ([]string, error) {
+	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := r.db.ListUserFeedTagNames(userID)
+	tagNames, err := r.db.ListUserFeedTagNames(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	return res, nil
+	return tagNames, nil
 }
 
-func (r *Client) RenameTag(ctx context.Context, oldName, newName string) error {
-	userID, err := r.validAuth(ctx)
+func (r *Client) RenameTag(ctx context.Context, username, oldName, newName string) error {
+	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
 	}
@@ -61,8 +55,8 @@ func (r *Client) RenameTag(ctx context.Context, oldName, newName string) error {
 	return r.db.RenameUserFeedTag(userID, oldName, newName)
 }
 
-func (r *Client) DeleteTag(ctx context.Context, name string) error {
-	userID, err := r.validAuth(ctx)
+func (r *Client) DeleteTag(ctx context.Context, username, name string) error {
+	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
 	}
@@ -70,43 +64,36 @@ func (r *Client) DeleteTag(ctx context.Context, name string) error {
 	return r.db.DeleteUserFeedTag(userID, name)
 }
 
-func (r *Client) ListSubscription(ctx context.Context) ([]*greader_api.Subscription, error) {
-	userID, err := r.validAuth(ctx)
+func (r *Client) ListSubscription(ctx context.Context, username string) ([]*greader_api.Subscription, error) {
+	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return nil, err
 	}
 
-	pos, err := r.db.ListUserSubscription(userID)
-	if err != nil {
-		return nil, err
-	}
-	ids := make([]int64, 0, len(pos))
-	for _, v := range pos {
-		ids = append(ids, v.FeedID)
-	}
-
-	feeds, err := r.db.MGetSubscription(ids)
+	userFeedPOs, err := r.db.ListUserFeed(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	feedIDs := []int64{}
-	for _, v := range feeds {
-		feedIDs = append(feedIDs, v.Id)
+	feedIDs := internal.Map(userFeedPOs, func(item *dal.ModelUserFeedRelation) int64 { return item.FeedID })
+
+	feedPOMap, err := r.db.MGetFeed(feedIDs)
+	if err != nil {
+		return nil, err
 	}
 
-	res := make([]*greader_api.Subscription, 0, len(pos))
-	for _, v := range pos {
-		feed := feeds[v.FeedID]
-		if feed == nil {
+	res := make([]*greader_api.Subscription, 0, len(userFeedPOs))
+	for _, v := range userFeedPOs {
+		feedPO := feedPOMap[v.FeedID]
+		if feedPO == nil {
 			continue
 		}
 		res = append(res, &greader_api.Subscription{
 			FeedID:      strconv.FormatInt(v.FeedID, 10),
 			Name:        v.Title,
 			Categories:  greader_api.BuildCategories([]string{v.TagName}),
-			FeedURL:     feed.FeedURL,
-			HomePageURL: feed.HomePageURL,
+			FeedURL:     feedPO.FeedURL,
+			HomePageURL: feedPO.HomePageURL,
 		})
 	}
 
@@ -115,14 +102,13 @@ func (r *Client) ListSubscription(ctx context.Context) ([]*greader_api.Subscript
 
 var feedParser = gofeed.NewParser()
 
-func (r *Client) AddSubscription(ctx context.Context, url string) (*greader_api.Subscription, error) {
-	r.log.Info(ctx, "add subscription, url=%s", url)
+func (r *Client) AddSubscription(ctx context.Context, username, url string) (*greader_api.Subscription, error) {
+	r.log.Info(ctx, "add subscription, username=%s, url=%s", username, url)
 
-	userID, err := r.validAuth(ctx)
+	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return nil, err
 	}
-	r.log.Info(ctx, "add subscription, user=%d", userID)
 
 	feed, err := feedParser.ParseURL(url)
 	if err != nil {
@@ -130,27 +116,26 @@ func (r *Client) AddSubscription(ctx context.Context, url string) (*greader_api.
 	}
 	r.log.Info(ctx, "add subscription, feed=%s", internal.Json(feed))
 
-	subscriptionPO, err := r.db.CreateSubscription(url, feed.Link)
+	subscriptionPO, err := r.db.CreateFeed(url, feed.Link)
 	if err != nil {
 		return nil, err
 	}
 
-	err = r.db.CreateUserSubscription(userID, subscriptionPO.Id, feed.Title)
+	err = r.db.CreateUserFeed(userID, subscriptionPO.ID, feed.Title)
 	if err != nil {
 		return nil, err
 	}
 
 	return &greader_api.Subscription{
-		FeedID:      strconv.FormatInt(subscriptionPO.Id, 10),
+		FeedID:      strconv.FormatInt(subscriptionPO.ID, 10),
 		Name:        feed.Title,
-		Categories:  nil,
 		FeedURL:     subscriptionPO.FeedURL,
 		HomePageURL: subscriptionPO.HomePageURL,
 	}, nil
 }
 
-func (r *Client) DeleteSubscription(ctx context.Context, feedID string) error {
-	userID, err := r.validAuth(ctx)
+func (r *Client) DeleteSubscription(ctx context.Context, username, feedID string) error {
+	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
 	}
@@ -160,11 +145,11 @@ func (r *Client) DeleteSubscription(ctx context.Context, feedID string) error {
 		return err
 	}
 
-	return r.db.DeleteUserSubscription(userID, id)
+	return r.db.DeleteUserFeed(userID, id)
 }
 
-func (r *Client) RenameSubscription(ctx context.Context, feedID, title string) error {
-	userID, err := r.validAuth(ctx)
+func (r *Client) UpdateSubscriptionTitle(ctx context.Context, username, feedID, title string) error {
+	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
 	}
@@ -174,11 +159,11 @@ func (r *Client) RenameSubscription(ctx context.Context, feedID, title string) e
 		return err
 	}
 
-	return r.db.RenameUserSubscription(userID, id, title)
+	return r.db.UpdateUserFeedTitle(userID, id, title)
 }
 
-func (r *Client) ChangeSubscriptionTagging(ctx context.Context, feedID string, addTag, removeTag string) error {
-	userID, err := r.validAuth(ctx)
+func (r *Client) UpdateSubscriptionTag(ctx context.Context, username, feedID string, addTag, removeTag string) error {
+	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
 	}
@@ -188,62 +173,50 @@ func (r *Client) ChangeSubscriptionTagging(ctx context.Context, feedID string, a
 		return err
 	}
 
-	if removeTag != "" {
-		err = r.db.MoveUserFeedTag(userID, id, removeTag, addTag)
-		if err != nil {
-			return err
-		}
+	err = r.db.UpdateUserFeedTag(userID, id, addTag)
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (r *Client) LoadEntry(ctx context.Context, articleIDs []string) ([]*greader_api.Entry, error) {
-	ids := []int64{}
-	for _, v := range articleIDs {
-		id, err := strconv.ParseInt(v, 10, 64)
-		if err != nil {
-			continue
-		}
-		ids = append(ids, id)
-	}
+func (r *Client) LoadEntry(ctx context.Context, entryIDs []string) ([]*greader_api.Entry, error) {
+	ids := internal.StringListToInt(entryIDs)
+
 	pos, err := r.db.MGetEntry(ids)
 	if err != nil {
 		return nil, err
 	}
 
-	res := make([]*greader_api.Entry, 0, len(pos))
-	for _, v := range pos {
-		res = append(res, &greader_api.Entry{
-			ArticleID: strconv.FormatInt(v.ID, 10),
-			Title:     v.Title,
-			Author:    v.Author,
-		})
-	}
+	res := internal.MapNoneEmpty(ids, func(id int64) *greader_api.Entry {
+		item := pos[id]
+		if item == nil {
+			return nil
+		}
+		return &greader_api.Entry{
+			ID:     strconv.FormatInt(item.ID, 10),
+			Title:  item.Title,
+			Author: item.Author,
+		}
+	})
 
 	return res, nil
 }
 
-func (r *Client) ChangeEntryStatus(ctx context.Context, articleIDs []string, read, starred *bool) error {
-	userID, err := r.validAuth(ctx)
+func (r *Client) UpdateEntry(ctx context.Context, username string, entryIDs []string, read, starred *bool) error {
+	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
 	}
 
-	ids := []int64{}
-	for _, v := range articleIDs {
-		id, err := strconv.ParseInt(v, 10, 64)
-		if err != nil {
-			continue
-		}
-		ids = append(ids, id)
-	}
+	ids := internal.StringListToInt(entryIDs)
 
 	return r.db.UpdateUserEntryStatus(userID, ids, read, starred)
 }
 
-func (r *Client) ListEntryIDs(ctx context.Context, readed, starred *bool, feedID *string, since time.Time, count int64, continuation string) (string, []int64, error) {
-	userID, err := r.validAuth(ctx)
+func (r *Client) ListEntryIDs(ctx context.Context, username string, readed, starred *bool, feedID *string, since time.Time, count int64, continuation string) (string, []int64, error) {
+	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return "", nil, err
 	}
@@ -253,16 +226,12 @@ func (r *Client) ListEntryIDs(ctx context.Context, readed, starred *bool, feedID
 		return "", nil, err
 	}
 
-	res := make([]int64, 0, len(pos))
-	for _, v := range pos {
-		res = append(res, v.EntryID)
-	}
+	entryIDs := internal.MapNoneEmpty(pos, func(item *dal.ModeUserEntryRelation) int64 { return item.EntryID })
 
-	return "", res, nil
+	return "", entryIDs, nil
 }
 
-func (r *Client) validAuth(ctx context.Context) (int64, error) {
-	username, _ := greader_api.GetContextAuth(ctx)
+func (r *Client) validAuth(ctx context.Context, username string) (int64, error) {
 	if username == "" {
 		return 0, fmt.Errorf("auth error")
 	}

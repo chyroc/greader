@@ -13,7 +13,7 @@ func (ModelEntry) TableName() string {
 }
 
 func (r *Client) MGetEntry(ids []int64) (map[int64]*ModelEntry, error) {
-	pos := []*ModelEntry{}
+	var pos []*ModelEntry
 	err := r.db.Where("id in (?)", ids).Find(&pos).Error
 	if err != nil {
 		return nil, err

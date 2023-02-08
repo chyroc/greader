@@ -25,13 +25,15 @@ func (r *Client) LoadItem(ctx context.Context, req HttpReader, writer http.Respo
 }
 
 func (r *Client) loadItem(ctx context.Context, req HttpReader) (*loadEntryList, error) {
+	username := getContextUsername(ctx)
+	entryIDs := getEntryHexIDs(req.FormList("i"))
+	r.log.Info(ctx, "[LoadItem], username=%s, entryIDs=%+v", username, entryIDs)
+
 	if err := r.mustJson(req); err != nil {
 		return nil, err
 	}
 
-	articleIDs := getEntryHexIDs(req.FormList("i"))
-
-	res, err := r.s.LoadEntry(ctx, articleIDs)
+	res, err := r.s.LoadEntry(ctx, entryIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -49,15 +51,15 @@ func (r *Client) loadItem(ctx context.Context, req HttpReader) (*loadEntryList, 
 }
 
 func getEntryHexIDs(list []string) []string {
-	articleIDs := []string{}
+	entryIDs := []string{}
 	for _, v := range list {
 		idHex := getTaggedItemHexID(v)
 		id, err := hex16ToInt(idHex)
 		if err != nil {
 			// ignore
 		} else {
-			articleIDs = append(articleIDs, strconv.FormatInt(id, 10))
+			entryIDs = append(entryIDs, strconv.FormatInt(id, 10))
 		}
 	}
-	return articleIDs
+	return entryIDs
 }

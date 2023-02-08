@@ -29,21 +29,21 @@ package greader_api
 */
 
 type Entry struct {
-	ArticleID string `json:"id"`
-	Title     string `json:"title"`
-	Author    string `json:"author"`
+	ID     string `json:"id"`
+	Title  string `json:"title"`
+	Author string `json:"author"`
 
 	PublishedTimestamp int    `json:"published"`
 	CrawledTimestamp   string `json:"crawlTimeMsec"`
 	TimestampUsec      string `json:"timestampUsec"`
 
-	Summary    *ArticleSummary      `json:"summary"`
+	Summary    *EntrySummary        `json:"summary"`
 	Alternates []*AlternateLocation `json:"alternate"`
 	Categories []string             `json:"categories"`
 	Origin     *EntryOrigin         `json:"origin"`
 }
 
-type ArticleSummary struct {
+type EntrySummary struct {
 	Content string `json:"content,omitempty"`
 }
 

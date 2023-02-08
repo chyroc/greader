@@ -14,10 +14,12 @@ import (
 // &s=user/-/label/%E5%88%86%E7%B1%BB2&dest=user/-/label/%E5%88%86%E7%B1%BB2asdf
 
 func (r *Client) TagRename(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
+	username := getContextUsername(ctx)
 	oldTagName := getUserLabelName(req.FormString("s"))
 	newTagName := getUserLabelName(req.FormString("dest"))
+	r.log.Info(ctx, "[TagRename] username=%s, rename: %s -> %s", username, oldTagName, newTagName)
 
-	err := r.s.RenameTag(ctx, oldTagName, newTagName)
+	err := r.s.RenameTag(ctx, username, oldTagName, newTagName)
 	if err != nil {
 		r.renderErr(ctx, writer, err)
 	} else {

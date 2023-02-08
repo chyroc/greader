@@ -9,21 +9,41 @@ func GetContextAuth(ctx context.Context) (string, string) {
 	return getContext(ctx)
 }
 
-type IStore interface {
-	Auth(ctx context.Context, username, password string) (string, error)
+type IGReaderStore interface {
+	// Login check username and password, return token
+	Login(ctx context.Context, username, password string) (string, error)
 
-	ListTag(ctx context.Context) ([]string, error)
-	RenameTag(ctx context.Context, oldName, newName string) error
-	DeleteTag(ctx context.Context, name string) error
+	// tag
 
-	ListSubscription(ctx context.Context) ([]*Subscription, error)
-	AddSubscription(ctx context.Context, url string) (*Subscription, error)
-	DeleteSubscription(ctx context.Context, feedID string) error
-	RenameSubscription(ctx context.Context, feedID, title string) error
+	// ListTag list all tags
+	ListTag(ctx context.Context, username string) ([]string, error)
+	// RenameTag rename tag, from oldName to newName
+	RenameTag(ctx context.Context, username, oldName, newName string) error
+	// DeleteTag delete tag, and remove all subscription of this tag
+	DeleteTag(ctx context.Context, username, name string) error
 
-	ChangeSubscriptionTagging(ctx context.Context, feedID string, addTag, removeTag string) error
+	// subscription
 
-	LoadEntry(ctx context.Context, articleIDs []string) ([]*Entry, error)
-	ListEntryIDs(ctx context.Context, readed, starred *bool, feedID *string, since time.Time, count int64, continuation string) (string, []int64, error)
-	ChangeEntryStatus(ctx context.Context, articleIDs []string, read, starred *bool) error
+	// ListSubscription list all subscription
+	ListSubscription(ctx context.Context, username string) ([]*Subscription, error)
+	// AddSubscription add subscription
+	AddSubscription(ctx context.Context, username string, url string) (*Subscription, error)
+	// DeleteSubscription delete subscription
+	DeleteSubscription(ctx context.Context, username string, feedID string) error
+	// UpdateSubscriptionTitle update subscription's title
+	UpdateSubscriptionTitle(ctx context.Context, username string, feedID, title string) error
+	// UpdateSubscriptionTag update subscription's tag
+	UpdateSubscriptionTag(ctx context.Context, username string, feedID string, addTag, removeTag string) error
+
+	// entry
+
+	// LoadEntry load entry by entry ids
+	LoadEntry(ctx context.Context, entryIDs []string) ([]*Entry, error)
+
+	// user's entry
+
+	// ListEntryIDs list entry's id list
+	ListEntryIDs(ctx context.Context, username string, readed, starred *bool, feedID *string, since time.Time, count int64, continuation string) (string, []int64, error)
+	// UpdateEntry update entry's status
+	UpdateEntry(ctx context.Context, username string, entryIDs []string, read, starred *bool) error
 }

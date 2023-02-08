@@ -21,9 +21,11 @@ func (r *Client) AddSubscription(ctx context.Context, req HttpReader, writer htt
 }
 
 func (r *Client) addSubscription(ctx context.Context, req HttpReader) (*AddSubscriptionResult, error) {
+	username := getContextUsername(ctx)
 	feedURL := req.FormString("quickadd")
+	r.log.Info(ctx, "[AddSubscription] username=%s, feedURL=%s", username, feedURL)
 
-	subscription, err := r.s.AddSubscription(ctx, feedURL)
+	subscription, err := r.s.AddSubscription(ctx, username, feedURL)
 	if err != nil {
 		return nil, err
 	} else if subscription == nil {

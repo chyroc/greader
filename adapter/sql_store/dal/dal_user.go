@@ -2,9 +2,6 @@ package dal
 
 import (
 	"errors"
-	"log"
-
-	"github.com/chyroc/greader/adapter/sql_store/internal"
 )
 
 type ModelUser struct {
@@ -28,18 +25,11 @@ func (r *Client) GetUser(username string) (*ModelUser, error) {
 	return pos[0], nil
 }
 
-func (r *Client) CheckAuth(username, password string) (hash string, err error) {
-	defer func() {
-		if err != nil {
-			log.Println("[CheckAuth] fail", "username:", username, "err:", err)
-		} else {
-			log.Println("[CheckAuth] success", "username:", username)
-		}
-	}()
-	hash = internal.CalSha1(username + ":" + password)
-
-	pos := []*ModelUser{}
-	if err = r.db.Where("username = ? and hash = ?", username, hash).Find(&pos).Error; err != nil {
+func (r *Client) Login(username, hash string) (string, error) {
+	var pos []*ModelUser
+	if err := r.db.
+		Where("username = ? and hash = ?", username, hash).
+		Find(&pos).Error; err != nil {
 		return "", err
 	} else if len(pos) == 0 {
 		return "", errors.New("invalid userID or password")

@@ -23,7 +23,9 @@ func (r *Client) TagDelete(ctx context.Context, req HttpReader, writer http.Resp
 }
 
 func (r *Client) tagDelete(ctx context.Context, req HttpReader) error {
+	username := getContextUsername(ctx)
 	tagName := getUserLabelName(req.FormString("s"))
+	r.log.Info(ctx, "[tagDelete] username=%s, tagName=%s", username, tagName)
 
-	return r.s.DeleteTag(ctx, tagName)
+	return r.s.DeleteTag(ctx, username, tagName)
 }

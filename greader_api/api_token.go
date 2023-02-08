@@ -66,6 +66,10 @@ func getContext(ctx context.Context) (string, string) {
 	return username, auth
 }
 
+func getContextUsername(ctx context.Context) string {
+	return getContextString(ctx, keyUsername)
+}
+
 func getContextString(ctx context.Context, key string) string {
 	val := ctx.Value(key)
 	if val == nil {

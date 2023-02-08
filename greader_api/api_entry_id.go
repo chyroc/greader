@@ -28,13 +28,16 @@ func (r *Client) ListItemIDs(ctx context.Context, req HttpReader, writer http.Re
 }
 
 func (r *Client) listItemIDs(ctx context.Context, req HttpReader) (*listEntryIDsResponse, error) {
+	username := getContextUsername(ctx)
+	s := req.QueryString("s")
+	xt := req.QueryString("xt")
+	continuation := req.QueryString("c")
+	r.log.Info(ctx, "[ListItemIDs], username=%s, s=%s, xt=%s, c=%s", username, s, xt, continuation)
+
 	if err := r.mustJson(req); err != nil {
 		return nil, err
 	}
 
-	s := req.QueryString("s")
-	xt := req.QueryString("xt")
-	continuation := req.QueryString("c")
 	count, err := queryCount(req)
 	if err != nil {
 		return nil, err
@@ -56,7 +59,7 @@ func (r *Client) listItemIDs(ctx context.Context, req HttpReader) (*listEntryIDs
 		// for feed, feedID = s
 		feedID = &[]string{getFeedID(s)}[0]
 	}
-	continuationNew, ids, err := r.s.ListEntryIDs(ctx, readed, starred, feedID, since, count, continuation)
+	continuationNew, ids, err := r.s.ListEntryIDs(ctx, username, readed, starred, feedID, since, count, continuation)
 	if err != nil {
 		return nil, err
 	}

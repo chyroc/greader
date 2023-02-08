@@ -12,7 +12,7 @@ func (ModelUserFeedRelation) TableName() string {
 	return "user_feed"
 }
 
-func (r *Client) ListUserSubscription(userID int64) ([]*ModelUserFeedRelation, error) {
+func (r *Client) ListUserFeed(userID int64) ([]*ModelUserFeedRelation, error) {
 	var pos []*ModelUserFeedRelation
 	err := r.db.
 		Where("user_id = ?", userID).Find(&pos).Error
@@ -23,7 +23,7 @@ func (r *Client) ListUserSubscription(userID int64) ([]*ModelUserFeedRelation, e
 	return pos, nil
 }
 
-func (r *Client) CreateUserSubscription(userID, feedID int64, title string) error {
+func (r *Client) CreateUserFeed(userID, feedID int64, title string) error {
 	err := r.db.Create(&ModelUserFeedRelation{
 		UserID:  userID,
 		FeedID:  feedID,
@@ -37,13 +37,13 @@ func (r *Client) CreateUserSubscription(userID, feedID int64, title string) erro
 	return nil
 }
 
-func (r *Client) DeleteUserSubscription(userID, feedID int64) error {
+func (r *Client) DeleteUserFeed(userID, feedID int64) error {
 	err := r.db.Where("user_id = ? and feed_id = ?", userID, feedID).
 		Delete(&ModelUserFeedRelation{}).Error
 	return err
 }
 
-func (r *Client) RenameUserSubscription(userID, feedID int64, newTitle string) error {
+func (r *Client) UpdateUserFeedTitle(userID, feedID int64, newTitle string) error {
 	err := r.db.Model(&ModelUserFeedRelation{}).
 		Where("user_id = ? and feed_id = ?", userID, feedID).
 		Update("title", newTitle).Error

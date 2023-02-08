@@ -1,31 +1,31 @@
 package dal
 
-type ModelSubscription struct {
-	Id          int64  `gorm:"column:id; primary_key; auto_increment"`
+type ModelFeed struct {
+	BaseModel
 	FeedURL     string `gorm:"column:feed_url"`
 	HomePageURL string `gorm:"column:home_url"`
 }
 
-func (ModelSubscription) TableName() string {
+func (ModelFeed) TableName() string {
 	return "feed"
 }
 
-func (r *Client) MGetSubscription(ids []int64) (map[int64]*ModelSubscription, error) {
-	var pos []*ModelSubscription
+func (r *Client) MGetFeed(ids []int64) (map[int64]*ModelFeed, error) {
+	var pos []*ModelFeed
 	err := r.db.Where("id in (?)", ids).Find(&pos).Error
 	if err != nil {
 		return nil, err
 	}
 
-	res := make(map[int64]*ModelSubscription)
+	res := make(map[int64]*ModelFeed)
 	for _, v := range pos {
-		res[v.Id] = v
+		res[v.ID] = v
 	}
 	return res, nil
 }
 
-func (r *Client) CreateSubscription(feedURL, homeURL string) (*ModelSubscription, error) {
-	po := &ModelSubscription{
+func (r *Client) CreateFeed(feedURL, homeURL string) (*ModelFeed, error) {
+	po := &ModelFeed{
 		FeedURL:     feedURL,
 		HomePageURL: homeURL,
 	}

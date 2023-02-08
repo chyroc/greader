@@ -19,11 +19,14 @@ func (r *Client) ListSubscription(ctx context.Context, req HttpReader, writer ht
 }
 
 func (r *Client) listSubscription(ctx context.Context, req HttpReader) (*subscriptionList, error) {
+	username := getContextUsername(ctx)
+	r.log.Info(ctx, "[ListSubscription] username=%s", username)
+
 	if err := r.mustJson(req); err != nil {
 		return nil, err
 	}
 
-	res, err := r.s.ListSubscription(ctx)
+	res, err := r.s.ListSubscription(ctx, username)
 	if err != nil {
 		return nil, err
 	}

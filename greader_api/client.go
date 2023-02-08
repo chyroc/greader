@@ -3,12 +3,12 @@ package greader_api
 import "net/http"
 
 type Client struct {
-	s   IStore
+	s   IGReaderStore
 	log ILogger
 }
 
 type ClientConfig struct {
-	Store  IStore
+	Store  IGReaderStore
 	Logger ILogger
 }
 
