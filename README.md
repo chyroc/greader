@@ -22,6 +22,8 @@ GREADER_DSN=xx ./greader
 http://<address>:8082/api/greader
 ```
 
+![](./screenshot/list.png)
+
 ## Ref
 
 - https://ranchero.com/downloads/GoogleReaderAPI-2009.pdf
