@@ -2,6 +2,26 @@
 
 RSS service, providing api similar to google reader.
 
+## Install
+
+```bash
+go install github.com/chyroc/greader@latest
+```
+
+## Usage
+
+### Start Service
+
+```go
+GREADER_DSN=xx ./greader
+```
+
+### RSS API
+
+```text
+http://<address>:8082/api/greader
+```
+
 ## Ref
 
 - https://ranchero.com/downloads/GoogleReaderAPI-2009.pdf

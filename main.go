@@ -2,12 +2,16 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/chyroc/greader/server_app"
 )
 
 func main() {
-	dsn := "root:@tcp(127.0.0.1:3306)/greader?charset=utf8&parseTime=True&loc=Local"
+	dsn := os.Getenv("GREADER_DSN")
+	if dsn == "" {
+		dsn = "root:@tcp(127.0.0.1:3306)/greader?charset=utf8&parseTime=True&loc=Local"
+	}
 
 	app, err := server_app.New(dsn)
 	if err != nil {
