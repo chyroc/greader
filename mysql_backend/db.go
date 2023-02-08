@@ -1,4 +1,4 @@
-package adapter_mysql
+package mysql_backend
 
 import (
 	"io"

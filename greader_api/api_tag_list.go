@@ -22,7 +22,7 @@ func (r *Client) tagList(ctx context.Context, req HttpReader) (*tagList, error) 
 
 	r.log.Info(ctx, "[TagList] username=%s", username)
 
-	tagNames, err := r.s.ListTag(ctx, username)
+	tagNames, err := r.backend.ListTag(ctx, username)
 	if err != nil {
 		return nil, err
 	}

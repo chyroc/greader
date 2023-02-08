@@ -1,7 +1,7 @@
 package dal
 
 import (
-	"github.com/chyroc/greader/adapter_mysql/internal"
+	"github.com/chyroc/greader/mysql_backend/internal"
 )
 
 func (r *Client) ListUserTagNames(userID int64) ([]string, error) {

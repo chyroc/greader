@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type IGReaderStore interface {
+type IGReaderBackend interface {
 	// Login check username and password, return token
 	Login(ctx context.Context, username, password string) (string, error)
 
@@ -42,7 +42,6 @@ type IGReaderStore interface {
 
 	// global
 
-	// LoadEntry load entry by entry ids
 	// ListFeedURL list all feed url
 	ListFeedURL(ctx context.Context) ([]string, error)
 	// AddFeedEntry add feed entry

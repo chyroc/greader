@@ -1,8 +1,8 @@
 package pack
 
 import (
-	"github.com/chyroc/greader/adapter_mysql/dal"
 	"github.com/chyroc/greader/greader_api"
+	"github.com/chyroc/greader/mysql_backend/dal"
 )
 
 func EntryToModel(feedID int64, entryList []*greader_api.Entry) []*dal.ModelEntry {

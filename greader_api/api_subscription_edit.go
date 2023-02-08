@@ -49,17 +49,17 @@ func (r *Client) editSubscription(ctx context.Context, req HttpReader) error {
 
 	switch action {
 	case "unsubscribe":
-		return r.s.DeleteSubscription(ctx, username, feedID)
+		return r.backend.DeleteSubscription(ctx, username, feedID)
 	case "edit":
 		if addTag != "" || removeTag != "" {
-			err := r.s.UpdateSubscriptionTag(ctx, username, feedID, addTag, removeTag)
+			err := r.backend.UpdateSubscriptionTag(ctx, username, feedID, addTag, removeTag)
 			if err != nil {
 				return err
 			}
 		}
 
 		if title != "" {
-			err := r.s.UpdateSubscriptionTitle(ctx, username, feedID, title)
+			err := r.backend.UpdateSubscriptionTitle(ctx, username, feedID, title)
 			if err != nil {
 				return err
 			}

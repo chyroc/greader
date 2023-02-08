@@ -28,5 +28,5 @@ func (r *Client) tagDelete(ctx context.Context, req HttpReader) error {
 	tagName := getUserLabelName(req.FormString("s"))
 	r.log.Info(ctx, "[tagDelete] username=%s, tagName=%s", username, tagName)
 
-	return r.s.DeleteTag(ctx, username, tagName)
+	return r.backend.DeleteTag(ctx, username, tagName)
 }

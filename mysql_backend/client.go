@@ -1,4 +1,4 @@
-package adapter_mysql
+package mysql_backend
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 
 	"github.com/mmcdole/gofeed"
 
-	"github.com/chyroc/greader/adapter_mysql/dal"
-	"github.com/chyroc/greader/adapter_mysql/internal"
-	"github.com/chyroc/greader/adapter_mysql/pack"
 	"github.com/chyroc/greader/greader_api"
+	"github.com/chyroc/greader/mysql_backend/dal"
+	"github.com/chyroc/greader/mysql_backend/internal"
+	"github.com/chyroc/greader/mysql_backend/pack"
 )
 
 type MySQLClient struct {
@@ -19,7 +19,7 @@ type MySQLClient struct {
 	log greader_api.ILogger
 }
 
-var _ greader_api.IGReaderStore = (*MySQLClient)(nil)
+var _ greader_api.IGReaderBackend = (*MySQLClient)(nil)
 
 func New(dsn string, logger greader_api.ILogger) (*MySQLClient, error) {
 	db, err := newDB(dsn)

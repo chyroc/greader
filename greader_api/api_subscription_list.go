@@ -26,7 +26,7 @@ func (r *Client) listSubscription(ctx context.Context, req HttpReader) (*subscri
 		return nil, err
 	}
 
-	res, err := r.s.ListSubscription(ctx, username)
+	res, err := r.backend.ListSubscription(ctx, username)
 	if err != nil {
 		return nil, err
 	}

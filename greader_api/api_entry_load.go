@@ -33,7 +33,7 @@ func (r *Client) loadItem(ctx context.Context, req HttpReader) (*loadEntryList, 
 		return nil, err
 	}
 
-	res, err := r.s.LoadEntry(ctx, username, entryIDs)
+	res, err := r.backend.LoadEntry(ctx, username, entryIDs)
 	if err != nil {
 		return nil, err
 	}

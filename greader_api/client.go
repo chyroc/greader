@@ -6,20 +6,20 @@ import (
 )
 
 type Client struct {
-	s           IGReaderStore
+	backend     IGReaderBackend
 	log         ILogger
 	fetchLogger ILogger
 }
 
 type ClientConfig struct {
-	Store       IGReaderStore
+	Backend     IGReaderBackend
 	Logger      ILogger
 	FetchLogger ILogger
 }
 
 func New(config *ClientConfig) *Client {
 	return &Client{
-		s:           config.Store,
+		backend:     config.Backend,
 		log:         config.Logger,
 		fetchLogger: config.FetchLogger,
 	}

@@ -56,5 +56,5 @@ func (r *Client) editSubscriptionStatus(ctx context.Context, req HttpReader) err
 		}
 	}
 
-	return r.s.UpdateEntry(ctx, username, entryIDs, readed, starred)
+	return r.backend.UpdateEntry(ctx, username, entryIDs, readed, starred)
 }

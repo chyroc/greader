@@ -21,7 +21,7 @@ func (r *Client) auth(ctx context.Context, reader HttpReader) (string, error) {
 	password := reader.FormString("Passwd")
 	r.log.Info(ctx, "[auth] username=%s", username)
 
-	authInfo, err := r.s.Login(ctx, username, password)
+	authInfo, err := r.backend.Login(ctx, username, password)
 	if err != nil {
 		return "", err
 	}

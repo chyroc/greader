@@ -59,7 +59,7 @@ func (r *Client) listItemIDs(ctx context.Context, req HttpReader) (*listEntryIDs
 		// for feed, feedID = s
 		feedID = &[]string{getFeedID(s)}[0]
 	}
-	continuationNew, ids, err := r.s.ListEntryIDs(ctx, username, readed, starred, feedID, since, count, continuation)
+	continuationNew, ids, err := r.backend.ListEntryIDs(ctx, username, readed, starred, feedID, since, count, continuation)
 	if err != nil {
 		return nil, err
 	}

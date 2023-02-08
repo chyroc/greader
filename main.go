@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/chyroc/greader/adapter_mysql"
 	"github.com/chyroc/greader/greader_api"
+	"github.com/chyroc/greader/mysql_backend"
 	"github.com/chyroc/greader/server"
 )
 
@@ -17,14 +17,14 @@ func main() {
 	r.Use(server.Log(logger))
 
 	dsn := "root:@tcp(127.0.0.1:3306)/greader?charset=utf8&parseTime=True&loc=Local"
-	db, err := adapter_mysql.New(dsn, logger)
+	db, err := mysql_backend.New(dsn, logger)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
 	cli := greader_api.New(&greader_api.ClientConfig{
-		Store:       db,
+		Backend:     db,
 		Logger:      logger,
 		FetchLogger: logger,
 	})

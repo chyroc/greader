@@ -20,7 +20,7 @@ func (r *Client) TagRename(ctx context.Context, req HttpReader, writer http.Resp
 	newTagName := getUserLabelName(req.FormString("dest"))
 	r.log.Info(ctx, "[TagRename] username=%s, rename: %s -> %s", username, oldTagName, newTagName)
 
-	err := r.s.RenameTag(ctx, username, oldTagName, newTagName)
+	err := r.backend.RenameTag(ctx, username, oldTagName, newTagName)
 	if err != nil {
 		r.renderErr(ctx, writer, err)
 	} else {

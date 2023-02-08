@@ -1,6 +1,6 @@
 package pack
 
-import "github.com/chyroc/greader/adapter_mysql/dal"
+import "github.com/chyroc/greader/mysql_backend/dal"
 
 func UserEntryToRelation(userIDs []int64, entryPOs []*dal.ModelEntry) []*dal.ModeUserEntryRelation {
 	pos := []*dal.ModeUserEntryRelation{}

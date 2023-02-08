@@ -30,14 +30,14 @@ func (r *Client) addSubscription(ctx context.Context, req HttpReader) (*AddSubsc
 		return nil, err
 	}
 
-	subscription, err := r.s.AddSubscription(ctx, username, feedURL, feed.Link, feed.Title)
+	subscription, err := r.backend.AddSubscription(ctx, username, feedURL, feed.Link, feed.Title)
 	if err != nil {
 		return nil, err
 	} else if subscription == nil {
 		return &AddSubscriptionResult{NumResults: 0}, nil
 	}
 
-	if err = r.s.AddFeedEntry(ctx, &username, feedURL, rssItemToEntry(feed.Items)); err != nil {
+	if err = r.backend.AddFeedEntry(ctx, &username, feedURL, rssItemToEntry(feed.Items)); err != nil {
 		return nil, err
 	}
 
