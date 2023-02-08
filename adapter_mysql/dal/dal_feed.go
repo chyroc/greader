@@ -38,3 +38,17 @@ func (r *Client) CreateFeed(feedURL, homeURL string) (*ModelFeed, error) {
 
 	return po, nil
 }
+
+func (r *Client) ListFeedURL() ([]string, error) {
+	var urls []string
+	err := r.db.
+		Model(&ModelFeed{}).
+		Pluck("feed_url", &urls).Error
+	return urls, err
+}
+
+func (r *Client) GetFeedByURL(url string) (*ModelFeed, error) {
+	var feed ModelFeed
+	err := r.db.Where("feed_url = ?", url).Find(&feed).Error
+	return &feed, err
+}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/chyroc/greader/adapter_mysql"
 	"github.com/chyroc/greader/greader_api"
@@ -23,6 +24,14 @@ func main() {
 	}
 
 	cli := greader_api.New(&greader_api.ClientConfig{Store: db, Logger: logger})
+
+	go func() {
+		for {
+			_ = cli.FetchRss()
+
+			time.Sleep(time.Second * 10)
+		}
+	}()
 
 	log.Println(http.ListenAndServe(server, cli))
 }

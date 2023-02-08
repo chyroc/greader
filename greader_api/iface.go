@@ -35,15 +35,19 @@ type IGReaderStore interface {
 	// UpdateSubscriptionTag update subscription's tag
 	UpdateSubscriptionTag(ctx context.Context, username string, feedID string, addTag, removeTag string) error
 
-	// entry
-
-	// LoadEntry load entry by entry ids
-	LoadEntry(ctx context.Context, entryIDs []string) ([]*Entry, error)
-
 	// user's entry
 
 	// ListEntryIDs list entry's id list
 	ListEntryIDs(ctx context.Context, username string, readed, starred *bool, feedID *string, since time.Time, count int64, continuation string) (string, []int64, error)
 	// UpdateEntry update entry's status
 	UpdateEntry(ctx context.Context, username string, entryIDs []string, read, starred *bool) error
+
+	// global
+
+	// LoadEntry load entry by entry ids
+	LoadEntry(ctx context.Context, entryIDs []string) ([]*Entry, error)
+	// ListFeedURL list all feed url
+	ListFeedURL(ctx context.Context) ([]string, error)
+	// AddFeedEntry add feed entry
+	AddFeedEntry(ctx context.Context, feedURL string, entryList []*Entry) error
 }

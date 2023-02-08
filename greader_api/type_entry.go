@@ -33,7 +33,7 @@ type Entry struct {
 	Title  string `json:"title"`
 	Author string `json:"author"`
 
-	PublishedTimestamp int    `json:"published"`
+	PublishedTimestamp int64  `json:"published"`
 	CrawledTimestamp   string `json:"crawlTimeMsec"`
 	TimestampUsec      string `json:"timestampUsec"`
 

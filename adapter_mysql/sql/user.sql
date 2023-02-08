@@ -8,4 +8,4 @@ CREATE TABLE `user`
     `deleted_at` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
     KEY          `username` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

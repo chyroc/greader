@@ -5,6 +5,7 @@ type ModelEntry struct {
 
 	FeedID int64  `gorm:"column:feed_id"`
 	Title  string `gorm:"column:title"`
+	URL    string `gorm:"column:url"`
 	Author string `gorm:"column:author"`
 }
 
@@ -26,12 +27,7 @@ func (r *Client) MGetEntry(ids []int64) (map[int64]*ModelEntry, error) {
 	return res, nil
 }
 
-func (r *Client) CreateEntry(feedID int64, title, author string) (*ModelEntry, error) {
-	po := &ModelEntry{
-		FeedID: feedID,
-		Title:  title,
-		Author: author,
-	}
-	err := r.db.Create(po).Error
-	return po, err
+func (r *Client) CreateEntries(pos []*ModelEntry) error {
+	err := r.db.Create(&pos).Error
+	return err
 }
