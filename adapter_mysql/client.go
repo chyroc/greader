@@ -287,48 +287,18 @@ func (r *MySQLClient) AddFeedEntry(ctx context.Context, username *string, feedUR
 	}
 
 	entryPOs := pack.EntryToModel(feedPO.ID, entryList)
-
 	if err = r.db.CreateEntries(entryPOs); err != nil {
 		r.log.Error(ctx, "[AddFeedEntry] CreateEntry err=%s", err)
 	}
 
 	if userID > 0 {
-		r.db.CreateUserEntries(pack.UserEntryToRelation(userID, entryPOs))
+		return r.db.CreateUserEntries(pack.UserEntryToRelation([]int64{userID}, entryPOs))
 	} else {
-		go func() {
-			// latestEntryID, err := r.db.GetUserEntryLatestID(userID)
-			// if err != nil {
-			// 	return "", nil, err
-			// }
-			// r.log.Info(ctx, "[ListEntryIDs] latest_entry_id=%d", latestEntryID)
-			//
-			// var feedIDs []int64
-			// if feedID != nil {
-			// 	id, err := strconv.ParseInt(*feedID, 10, 64)
-			// 	if err != nil {
-			// 		return "", nil, err
-			// 	}
-			// 	feedIDs = append(feedIDs, id)
-			// } else {
-			// 	feedIDs, err = r.db.ListUserFeedIDs(userID)
-			// 	if err != nil {
-			// 		return "", nil, err
-			// 	}
-			// }
-			// r.log.Info(ctx, "[ListEntryIDs] feed_ids=%+v", feedIDs)
-			//
-			// unreadEntryList, err := r.db.ListEntryByLatestID(feedIDs, latestEntryID, int(count))
-			// if err != nil {
-			// 	return "", nil, err
-			// }
-			//
-			// go func() {
-			// 	pos := pack.UserEntryToRelation(userID, unreadEntryList)
-			// 	if err = r.db.CreateUserEntries(pos); err != nil {
-			// 		r.log.Error(ctx, "[ListEntryIDs] CreateUserEntry username=%s, err=%s", username, err)
-			// 	}
-			// }()
-		}()
+		userIDs, err := r.db.ListFeedUserIDs(feedPO.ID)
+		if err != nil {
+			return err
+		}
+		return r.db.CreateUserEntries(pack.UserEntryToRelation(userIDs, entryPOs))
 	}
 
 	return nil

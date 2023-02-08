@@ -23,6 +23,15 @@ func (r *Client) ListUserFeed(userID int64) ([]*ModelUserFeedRelation, error) {
 	return pos, nil
 }
 
+func (r *Client) ListFeedUserIDs(feedID int64) ([]int64, error) {
+	var ids []int64
+	err := r.db.
+		Model(&ModelUserFeedRelation{}).
+		Where("feed_id = ?", feedID).
+		Pluck("user_id", &ids).Error
+	return ids, err
+}
+
 func (r *Client) ListUserFeedIDs(userID int64) ([]int64, error) {
 	var ids []int64
 	err := r.db.
@@ -33,14 +42,13 @@ func (r *Client) ListUserFeedIDs(userID int64) ([]int64, error) {
 }
 
 func (r *Client) CreateUserFeed(userID, feedID int64, title string) error {
-	err := r.db.Create(&ModelUserFeedRelation{
+	err := r.db.Clauses(ignoreInsertClause).Create(&ModelUserFeedRelation{
 		UserID:  userID,
 		FeedID:  feedID,
 		Title:   title,
 		TagName: defaultTagName,
 	}).Error
 	if err != nil {
-		// TODO ignore dup
 		return err
 	}
 	return nil

@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type BaseModel struct {
@@ -23,6 +24,8 @@ func New(db *gorm.DB) *Client {
 }
 
 const defaultTagName = "default"
+
+var ignoreInsertClause = clause.Insert{Modifier: "IGNORE"}
 
 func isDuplicateErr(err error) bool {
 	if err == nil {

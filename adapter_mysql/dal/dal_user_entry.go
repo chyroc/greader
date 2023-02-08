@@ -1,8 +1,6 @@
 package dal
 
 import (
-	"gorm.io/gorm/clause"
-
 	"github.com/chyroc/greader/adapter_mysql/internal"
 )
 
@@ -63,5 +61,5 @@ func (r *Client) ListUserEntry(userID int64, readed, starred *bool, feedID *stri
 }
 
 func (r *Client) CreateUserEntries(pos []*ModeUserEntryRelation) error {
-	return r.db.Clauses(clause.Insert{Modifier: "IGNORE"}).Create(&pos).Error
+	return r.db.Clauses(ignoreInsertClause).Create(&pos).Error
 }

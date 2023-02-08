@@ -1,8 +1,6 @@
 package dal
 
 import (
-	"gorm.io/gorm/clause"
-
 	"github.com/chyroc/greader/adapter_mysql/internal"
 )
 
@@ -34,7 +32,7 @@ func (r *Client) MGetEntry(ids []int64) (map[int64]*ModelEntry, error) {
 }
 
 func (r *Client) CreateEntries(pos []*ModelEntry) error {
-	return r.db.Clauses(clause.Insert{Modifier: "IGNORE"}).Create(&pos).Error
+	return r.db.Clauses(ignoreInsertClause).Create(&pos).Error
 }
 
 func (r *Client) ListEntryByLatestID(feedIDs []int64, latestEntryID int64, limit int) ([]*ModelEntry, error) {
