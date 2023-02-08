@@ -61,5 +61,8 @@ func (r *Client) ListUserEntry(userID int64, readed, starred *bool, feedID *stri
 }
 
 func (r *Client) CreateUserEntries(pos []*ModeUserEntryRelation) error {
+	if len(pos) == 0 {
+		return nil
+	}
 	return r.db.Clauses(ignoreInsertClause).Create(&pos).Error
 }

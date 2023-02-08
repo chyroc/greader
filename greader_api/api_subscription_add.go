@@ -21,7 +21,7 @@ func (r *Client) AddSubscription(ctx context.Context, req HttpReader, writer htt
 }
 
 func (r *Client) addSubscription(ctx context.Context, req HttpReader) (*AddSubscriptionResult, error) {
-	username := getContextUsername(ctx)
+	username, _ := r.getHeaderAuth(req)
 	feedURL := req.FormString("quickadd")
 	r.log.Info(ctx, "[AddSubscription] username=%s, feedURL=%s", username, feedURL)
 

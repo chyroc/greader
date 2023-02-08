@@ -10,6 +10,15 @@ import (
 
 var p = gofeed.NewParser()
 
+func (r *Client) FetchRssBackend() {
+	go func() {
+		for {
+			_ = r.FetchRss()
+			time.Sleep(5 * time.Minute)
+		}
+	}()
+}
+
 func (r *Client) FetchRss() error {
 	ctx := context.Background()
 

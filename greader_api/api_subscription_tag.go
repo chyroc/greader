@@ -21,7 +21,8 @@ func (r *Client) EditSubscriptionStatus(ctx context.Context, req HttpReader, wri
 }
 
 func (r *Client) editSubscriptionStatus(ctx context.Context, req HttpReader) error {
-	username := getContextUsername(ctx)
+	username, _ := r.getHeaderAuth(req)
+
 	entryIDs := getEntryHexIDs(req.FormList("i"))
 	add := req.FormString("a")    // add
 	remove := req.FormString("r") // remove

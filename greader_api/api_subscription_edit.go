@@ -34,7 +34,8 @@ func (r *Client) EditSubscription(ctx context.Context, req HttpReader, writer ht
 }
 
 func (r *Client) editSubscription(ctx context.Context, req HttpReader) error {
-	username := getContextUsername(ctx)
+	username, _ := r.getHeaderAuth(req)
+
 	feedID := getFeedID(req.FormString("s"))
 	action := req.FormString("ac")
 	addTag := getUserLabelName(req.FormString("a"))

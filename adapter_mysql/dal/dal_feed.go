@@ -1,6 +1,8 @@
 package dal
 
-import "github.com/chyroc/greader/adapter_mysql/internal"
+import (
+	"github.com/chyroc/greader/adapter_mysql/internal"
+)
 
 type ModelFeed struct {
 	BaseModel
@@ -32,13 +34,13 @@ func (r *Client) CreateFeed(feedURL, homeURL string) (*ModelFeed, error) {
 		FeedURL:     feedURL,
 		HomePageURL: homeURL,
 	}
-	err := r.db.Create(po).Error
-	if err == nil {
-		return po, nil
+	err := r.db.Clauses(ignoreInsertClause).Create(po).Error
+	if err != nil {
+		return nil, err
 	}
-
-	r.db.Where("feed_url = ?", feedURL).Find(&po)
-
+	if po.ID == 0 {
+		return r.GetFeedByURL(feedURL)
+	}
 	return po, nil
 }
 

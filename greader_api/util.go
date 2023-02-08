@@ -10,8 +10,6 @@ import (
 )
 
 func (r *Client) renderErr(ctx context.Context, writer http.ResponseWriter, err error) {
-	r.log.Error(ctx, "[response] [err] path=%s, err=%s", getContextPath(ctx), err)
-
 	if err != nil {
 		writer.WriteHeader(400)
 		writer.Write([]byte(err.Error()))
@@ -20,24 +18,22 @@ func (r *Client) renderErr(ctx context.Context, writer http.ResponseWriter, err 
 
 func (r *Client) renderData(ctx context.Context, writer http.ResponseWriter, data interface{}) {
 	if data == nil {
-		r.log.Info(ctx, "[response] [ok] path=%s, resp=nil", getContextPath(ctx))
 		writer.WriteHeader(200)
 		return
 	}
 	switch data := data.(type) {
 	case string:
-		r.log.Info(ctx, "[response] [ok] path=%s, resp=%s", getContextPath(ctx), data)
 		writer.Write([]byte(data))
 	default:
 		bs, _ := json.Marshal(data)
-		r.log.Info(ctx, "[response] [ok] path=%s, resp=%s", getContextPath(ctx), string(bs))
 		writer.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		writer.Write(bs)
 	}
 }
 
 func (r *Client) mustJson(req HttpReader) error {
-	if res := req.HeaderString("output"); res != "" && res != "json" {
+	if res := req.QueryString("output"); res != "" && res != "json" {
+		panic("output must be json")
 		return errors.New("output must be json")
 	}
 	return nil

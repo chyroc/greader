@@ -55,7 +55,7 @@ func (r *Client) CreateUserFeed(userID, feedID int64, title string) error {
 }
 
 func (r *Client) DeleteUserFeed(userID, feedID int64) error {
-	err := r.db.Where("user_id = ? and feed_id = ?", userID, feedID).
+	err := r.db.Unscoped().Where("user_id = ? and feed_id = ?", userID, feedID).
 		Delete(&ModelUserFeedRelation{}).Error
 	return err
 }

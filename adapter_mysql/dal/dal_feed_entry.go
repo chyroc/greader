@@ -32,6 +32,9 @@ func (r *Client) MGetEntry(ids []int64) (map[int64]*ModelEntry, error) {
 }
 
 func (r *Client) CreateEntries(pos []*ModelEntry) error {
+	if len(pos) == 0 {
+		return nil
+	}
 	return r.db.Clauses(ignoreInsertClause).Create(&pos).Error
 }
 

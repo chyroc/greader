@@ -3,14 +3,14 @@ package greader_api
 import "net/http"
 
 func WrapStdHttpRequest(request *http.Request) HttpReader {
-	return &httpReader{request}
+	return &stdHttpReader{request}
 }
 
-type httpReader struct {
+type stdHttpReader struct {
 	request *http.Request
 }
 
-func (r *httpReader) HeaderString(key string) string {
+func (r *stdHttpReader) HeaderString(key string) string {
 	val, _ := r.request.Header[key]
 	if len(val) > 0 {
 		return val[0]
@@ -18,12 +18,12 @@ func (r *httpReader) HeaderString(key string) string {
 	return ""
 }
 
-func (r *httpReader) FormList(key string) []string {
+func (r *stdHttpReader) FormList(key string) []string {
 	val, _ := r.request.Form[key]
 	return val
 }
 
-func (r *httpReader) FormString(key string) string {
+func (r *stdHttpReader) FormString(key string) string {
 	val, ok := r.request.Form[key]
 	if !ok {
 		return ""
@@ -31,7 +31,7 @@ func (r *httpReader) FormString(key string) string {
 	return val[0]
 }
 
-func (r *httpReader) QueryString(key string) string {
+func (r *stdHttpReader) QueryString(key string) string {
 	val, ok := r.request.URL.Query()[key]
 	if !ok {
 		return ""

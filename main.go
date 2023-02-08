@@ -1,20 +1,20 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"net/http"
-	"time"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/chyroc/greader/adapter_mysql"
 	"github.com/chyroc/greader/greader_api"
+	"github.com/chyroc/greader/server"
 )
 
 func main() {
-	server := "127.0.0.1:8082"
-	fmt.Println("http://" + server)
-
 	logger := greader_api.NewDefaultLogger()
+
+	r := gin.New()
+	r.Use(server.Log(logger))
 
 	dsn := "root:@tcp(127.0.0.1:3306)/greader?charset=utf8&parseTime=True&loc=Local"
 	db, err := adapter_mysql.New(dsn, logger)
@@ -28,14 +28,22 @@ func main() {
 		Logger:      logger,
 		FetchLogger: logger,
 	})
+	cli.FetchRssBackend()
 
-	go func() {
-		for {
-			_ = cli.FetchRss()
-
-			time.Sleep(time.Second * 10)
+	api := r.Group("/api")
+	{
+		greaderAPI := api.Group("/greader")
+		{
+			for path, handler := range cli.Routers() {
+				handler := handler
+				greaderAPI.Handle(path[0], path[1], func(c *gin.Context) {
+					handler(c, server.NewGinHttpReader(c), c.Writer)
+				})
+			}
 		}
-	}()
+	}
 
-	log.Println(http.ListenAndServe(server, cli))
+	if err := r.Run("127.0.0.1:8082"); err != nil {
+		log.Fatalln(err)
+	}
 }

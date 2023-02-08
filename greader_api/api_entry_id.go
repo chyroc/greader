@@ -28,7 +28,7 @@ func (r *Client) ListItemIDs(ctx context.Context, req HttpReader, writer http.Re
 }
 
 func (r *Client) listItemIDs(ctx context.Context, req HttpReader) (*listEntryIDsResponse, error) {
-	username := getContextUsername(ctx)
+	username, _ := r.getHeaderAuth(req)
 	s := req.QueryString("s")
 	xt := req.QueryString("xt")
 	continuation := req.QueryString("c")

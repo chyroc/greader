@@ -16,13 +16,13 @@ type logger struct {
 }
 
 func NewDefaultLogger() ILogger {
-	return &logger{log.New(os.Stderr, "[greader]", log.LstdFlags)}
+	return &logger{log.New(os.Stderr, "[greader] ", log.LstdFlags)}
 }
 
 func (r *logger) Info(ctx context.Context, format string, args ...interface{}) {
-	r.log.Printf("[info] "+format, args...)
+	r.log.Printf(format, args...)
 }
 
 func (r *logger) Error(ctx context.Context, format string, args ...interface{}) {
-	r.log.Printf("[eror] "+format, args...)
+	r.log.Printf(format, args...)
 }

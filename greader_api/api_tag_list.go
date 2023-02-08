@@ -18,7 +18,8 @@ func (r *Client) tagList(ctx context.Context, req HttpReader) (*tagList, error) 
 	if err := r.mustJson(req); err != nil {
 		return nil, err
 	}
-	username := getContextUsername(ctx)
+	username, _ := r.getHeaderAuth(req)
+
 	r.log.Info(ctx, "[TagList] username=%s", username)
 
 	tagNames, err := r.s.ListTag(ctx, username)

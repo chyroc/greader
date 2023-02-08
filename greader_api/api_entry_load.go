@@ -25,7 +25,7 @@ func (r *Client) LoadItem(ctx context.Context, req HttpReader, writer http.Respo
 }
 
 func (r *Client) loadItem(ctx context.Context, req HttpReader) (*loadEntryList, error) {
-	username := getContextUsername(ctx)
+	username, _ := r.getHeaderAuth(req)
 	entryIDs := getEntryHexIDs(req.FormList("i"))
 	r.log.Info(ctx, "[LoadItem], username=%s, entryIDs=%+v", username, entryIDs)
 

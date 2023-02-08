@@ -19,7 +19,7 @@ func (r *Client) ListSubscription(ctx context.Context, req HttpReader, writer ht
 }
 
 func (r *Client) listSubscription(ctx context.Context, req HttpReader) (*subscriptionList, error) {
-	username := getContextUsername(ctx)
+	username, _ := r.getHeaderAuth(req)
 	r.log.Info(ctx, "[ListSubscription] username=%s", username)
 
 	if err := r.mustJson(req); err != nil {

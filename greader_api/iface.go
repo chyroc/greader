@@ -5,10 +5,6 @@ import (
 	"time"
 )
 
-func GetContextAuth(ctx context.Context) (string, string) {
-	return getContext(ctx)
-}
-
 type IGReaderStore interface {
 	// Login check username and password, return token
 	Login(ctx context.Context, username, password string) (string, error)

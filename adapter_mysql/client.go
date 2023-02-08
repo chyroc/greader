@@ -44,6 +44,8 @@ func (r *MySQLClient) ListTag(ctx context.Context, username string) ([]string, e
 		return nil, err
 	}
 
+	tagNames = internal.Unique(tagNames)
+
 	return tagNames, nil
 }
 
@@ -306,11 +308,11 @@ func (r *MySQLClient) AddFeedEntry(ctx context.Context, username *string, feedUR
 
 func (r *MySQLClient) validAuth(ctx context.Context, username string) (int64, error) {
 	if username == "" {
-		return 0, fmt.Errorf("auth error")
+		return 0, fmt.Errorf("auth error, username empty")
 	}
 	user, _ := r.db.GetUser(username)
 	if user == nil {
-		return 0, fmt.Errorf("auth error")
+		return 0, fmt.Errorf("auth error, cannot get user")
 	}
 	return user.ID, nil
 }
