@@ -1,6 +1,10 @@
 package dal
 
-import "github.com/chyroc/greader/adapter_mysql/internal"
+import (
+	"gorm.io/gorm/clause"
+
+	"github.com/chyroc/greader/adapter_mysql/internal"
+)
 
 type ModelEntry struct {
 	BaseModel
@@ -29,19 +33,8 @@ func (r *Client) MGetEntry(ids []int64) (map[int64]*ModelEntry, error) {
 	return res, nil
 }
 
-func (r *Client) CreateEntry(pos *ModelEntry) error {
-	if err := r.db.Create(&pos).Error; err != nil {
-		if isDuplicateErr(err) {
-			return nil
-		}
-		return err
-	}
-	return nil
-}
-
 func (r *Client) CreateEntries(pos []*ModelEntry) error {
-	err := r.db.Create(&pos).Error
-	return err
+	return r.db.Clauses(clause.Insert{Modifier: "IGNORE"}).Create(&pos).Error
 }
 
 func (r *Client) ListEntryByLatestID(feedIDs []int64, latestEntryID int64, limit int) ([]*ModelEntry, error) {

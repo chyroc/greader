@@ -1,6 +1,10 @@
 package dal
 
-import "github.com/chyroc/greader/adapter_mysql/internal"
+import (
+	"gorm.io/gorm/clause"
+
+	"github.com/chyroc/greader/adapter_mysql/internal"
+)
 
 type ModeUserEntryRelation struct {
 	BaseModel
@@ -58,19 +62,6 @@ func (r *Client) ListUserEntry(userID int64, readed, starred *bool, feedID *stri
 	return pos, nil
 }
 
-func (r *Client) CreateUserEntry(userID, feedID, entryID int64) error {
-	err := r.db.Create(&ModeUserEntryRelation{
-		UserID:  userID,
-		FeedID:  feedID,
-		EntryID: entryID,
-		Readed:  false,
-		Starred: false,
-	}).Error
-	if err != nil {
-		if isDuplicateErr(err) {
-			return nil
-		}
-		return err
-	}
-	return nil
+func (r *Client) CreateUserEntries(pos []*ModeUserEntryRelation) error {
+	return r.db.Clauses(clause.Insert{Modifier: "IGNORE"}).Create(&pos).Error
 }

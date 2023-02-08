@@ -26,7 +26,7 @@ func (r *Client) FetchRss() error {
 			continue
 		}
 
-		err = r.s.AddFeedEntry(ctx, feedURL, rssItemToEntry(feed.Items))
+		err = r.s.AddFeedEntry(ctx, nil, feedURL, rssItemToEntry(feed.Items))
 		if err != nil {
 			r.fetchLogger.Error(ctx, "[FetchRss] AddFeedEntry fail, url=%s, err=%s", feedURL, err)
 			continue

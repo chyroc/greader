@@ -7,5 +7,5 @@ CREATE TABLE `user`
     `updated_at` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `deleted_at` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
-    KEY          `username` (`username`)
+    UNIQUE KEY          `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

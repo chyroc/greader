@@ -27,7 +27,7 @@ type IGReaderStore interface {
 	// ListSubscription list all subscription
 	ListSubscription(ctx context.Context, username string) ([]*Subscription, error)
 	// AddSubscription add subscription
-	AddSubscription(ctx context.Context, username string, url string) (*Subscription, error)
+	AddSubscription(ctx context.Context, username string, feedURL, homeURL, title string) (*Subscription, error)
 	// DeleteSubscription delete subscription
 	DeleteSubscription(ctx context.Context, username string, feedID string) error
 	// UpdateSubscriptionTitle update subscription's title
@@ -50,5 +50,5 @@ type IGReaderStore interface {
 	// ListFeedURL list all feed url
 	ListFeedURL(ctx context.Context) ([]string, error)
 	// AddFeedEntry add feed entry
-	AddFeedEntry(ctx context.Context, feedURL string, entryList []*Entry) error
+	AddFeedEntry(ctx context.Context, username *string, feedURL string, entryList []*Entry) error
 }

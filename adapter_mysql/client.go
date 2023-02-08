@@ -10,6 +10,7 @@ import (
 
 	"github.com/chyroc/greader/adapter_mysql/dal"
 	"github.com/chyroc/greader/adapter_mysql/internal"
+	"github.com/chyroc/greader/adapter_mysql/pack"
 	"github.com/chyroc/greader/greader_api"
 )
 
@@ -102,32 +103,27 @@ func (r *MySQLClient) ListSubscription(ctx context.Context, username string) ([]
 
 var feedParser = gofeed.NewParser()
 
-func (r *MySQLClient) AddSubscription(ctx context.Context, username, url string) (*greader_api.Subscription, error) {
-	r.log.Info(ctx, "add subscription, username=%s, url=%s", username, url)
+func (r *MySQLClient) AddSubscription(ctx context.Context, username, feedURL, homeURL, title string) (*greader_api.Subscription, error) {
+	r.log.Info(ctx, "add subscription, username=%s, feedURL=%s", username, feedURL)
 
 	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return nil, err
 	}
 
-	feed, err := feedParser.ParseURL(url)
+	subscriptionPO, err := r.db.CreateFeed(feedURL, homeURL)
 	if err != nil {
 		return nil, err
 	}
 
-	subscriptionPO, err := r.db.CreateFeed(url, feed.Link)
-	if err != nil {
-		return nil, err
-	}
-
-	err = r.db.CreateUserFeed(userID, subscriptionPO.ID, feed.Title)
+	err = r.db.CreateUserFeed(userID, subscriptionPO.ID, title)
 	if err != nil {
 		return nil, err
 	}
 
 	return &greader_api.Subscription{
 		FeedID:      strconv.FormatInt(subscriptionPO.ID, 10),
-		Name:        feed.Title,
+		Name:        title,
 		FeedURL:     subscriptionPO.FeedURL,
 		HomePageURL: subscriptionPO.HomePageURL,
 	}, nil
@@ -260,41 +256,6 @@ func (r *MySQLClient) ListEntryIDs(ctx context.Context, username string, readed,
 		return "", nil, err
 	}
 
-	latestEntryID, err := r.db.GetUserEntryLatestID(userID)
-	if err != nil {
-		return "", nil, err
-	}
-	r.log.Info(ctx, "[ListEntryIDs] latest_entry_id=%d", latestEntryID)
-
-	var feedIDs []int64
-	if feedID != nil {
-		id, err := strconv.ParseInt(*feedID, 10, 64)
-		if err != nil {
-			return "", nil, err
-		}
-		feedIDs = append(feedIDs, id)
-	} else {
-		feedIDs, err = r.db.ListUserFeedIDs(userID)
-		if err != nil {
-			return "", nil, err
-		}
-	}
-	r.log.Info(ctx, "[ListEntryIDs] feed_ids=%+v", feedIDs)
-
-	unreadEntryList, err := r.db.ListEntryByLatestID(feedIDs, latestEntryID, int(count))
-	if err != nil {
-		return "", nil, err
-	}
-
-	go func() {
-		for _, v := range unreadEntryList {
-			err = r.db.CreateUserEntry(userID, v.FeedID, v.ID)
-			if err != nil {
-				r.log.Error(ctx, "[ListEntryIDs] CreateUserEntry username=%s, feed_id=%d, err=%s", username, v.FeedID, err)
-			}
-		}
-	}()
-
 	pos, err := r.db.ListUserEntry(userID, readed, starred, feedID, int(count))
 	if err != nil {
 		return "", nil, err
@@ -310,34 +271,64 @@ func (r *MySQLClient) ListFeedURL(ctx context.Context) ([]string, error) {
 	return r.db.ListFeedURL()
 }
 
-func (r *MySQLClient) AddFeedEntry(ctx context.Context, feedURL string, entryList []*greader_api.Entry) error {
+func (r *MySQLClient) AddFeedEntry(ctx context.Context, username *string, feedURL string, entryList []*greader_api.Entry) error {
 	// r.log.Info(ctx, "[AddFeedEntry] feedURL=%s, entryList.len=%d", feedURL, len(entryList))
+	var userID int64
+	var err error
+	if username != nil {
+		if userID, err = r.validAuth(ctx, *username); err != nil {
+			return err
+		}
+	}
 
 	feedPO, err := r.db.GetFeedByURL(feedURL)
 	if err != nil {
 		return err
 	}
 
-	for _, v := range entryList {
-		url := ""
-		for _, v := range v.Alternates {
-			if v.URL != "" {
-				url = v.URL
-				break
-			}
-		}
-		if url == "" {
-			continue
-		}
-		entryPO := &dal.ModelEntry{
-			FeedID: feedPO.ID,
-			URL:    url,
-			Title:  v.Title,
-			Author: v.Author,
-		}
-		if err = r.db.CreateEntry(entryPO); err != nil {
-			r.log.Error(ctx, "[AddFeedEntry] CreateEntry err=%s", err)
-		}
+	entryPOs := pack.EntryToModel(feedPO.ID, entryList)
+
+	if err = r.db.CreateEntries(entryPOs); err != nil {
+		r.log.Error(ctx, "[AddFeedEntry] CreateEntry err=%s", err)
+	}
+
+	if userID > 0 {
+		r.db.CreateUserEntries(pack.UserEntryToRelation(userID, entryPOs))
+	} else {
+		go func() {
+			// latestEntryID, err := r.db.GetUserEntryLatestID(userID)
+			// if err != nil {
+			// 	return "", nil, err
+			// }
+			// r.log.Info(ctx, "[ListEntryIDs] latest_entry_id=%d", latestEntryID)
+			//
+			// var feedIDs []int64
+			// if feedID != nil {
+			// 	id, err := strconv.ParseInt(*feedID, 10, 64)
+			// 	if err != nil {
+			// 		return "", nil, err
+			// 	}
+			// 	feedIDs = append(feedIDs, id)
+			// } else {
+			// 	feedIDs, err = r.db.ListUserFeedIDs(userID)
+			// 	if err != nil {
+			// 		return "", nil, err
+			// 	}
+			// }
+			// r.log.Info(ctx, "[ListEntryIDs] feed_ids=%+v", feedIDs)
+			//
+			// unreadEntryList, err := r.db.ListEntryByLatestID(feedIDs, latestEntryID, int(count))
+			// if err != nil {
+			// 	return "", nil, err
+			// }
+			//
+			// go func() {
+			// 	pos := pack.UserEntryToRelation(userID, unreadEntryList)
+			// 	if err = r.db.CreateUserEntries(pos); err != nil {
+			// 		r.log.Error(ctx, "[ListEntryIDs] CreateUserEntry username=%s, err=%s", username, err)
+			// 	}
+			// }()
+		}()
 	}
 
 	return nil
