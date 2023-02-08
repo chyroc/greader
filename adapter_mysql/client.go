@@ -1,4 +1,4 @@
-package sql_store
+package adapter_mysql
 
 import (
 	"context"
@@ -8,13 +8,13 @@ import (
 
 	"github.com/mmcdole/gofeed"
 
-	"github.com/chyroc/greader/adapter/sql_store/dal"
-	"github.com/chyroc/greader/adapter/sql_store/internal"
+	dal2 "github.com/chyroc/greader/adapter_mysql/dal"
+	"github.com/chyroc/greader/adapter_mysql/internal"
 	"github.com/chyroc/greader/greader_api"
 )
 
 type Client struct {
-	db  *dal.Client
+	db  *dal2.Client
 	log greader_api.ILogger
 }
 
@@ -25,7 +25,7 @@ func New(dsn string, logger greader_api.ILogger) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Client{db: dal.New(db), log: logger}, nil
+	return &Client{db: dal2.New(db), log: logger}, nil
 }
 
 func (r *Client) Login(ctx context.Context, username, password string) (string, error) {
@@ -75,7 +75,7 @@ func (r *Client) ListSubscription(ctx context.Context, username string) ([]*grea
 		return nil, err
 	}
 
-	feedIDs := internal.Map(userFeedPOs, func(item *dal.ModelUserFeedRelation) int64 { return item.FeedID })
+	feedIDs := internal.Map(userFeedPOs, func(item *dal2.ModelUserFeedRelation) int64 { return item.FeedID })
 
 	feedPOMap, err := r.db.MGetFeed(feedIDs)
 	if err != nil {
@@ -226,7 +226,7 @@ func (r *Client) ListEntryIDs(ctx context.Context, username string, readed, star
 		return "", nil, err
 	}
 
-	entryIDs := internal.MapNoneEmpty(pos, func(item *dal.ModeUserEntryRelation) int64 { return item.EntryID })
+	entryIDs := internal.MapNoneEmpty(pos, func(item *dal2.ModeUserEntryRelation) int64 { return item.EntryID })
 
 	return "", entryIDs, nil
 }

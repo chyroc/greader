@@ -1,6 +1,8 @@
 package dal
 
-import "github.com/chyroc/greader/adapter/sql_store/internal"
+import (
+	"github.com/chyroc/greader/adapter_mysql/internal"
+)
 
 func (r *Client) ListUserFeedTagNames(userID int64) ([]string, error) {
 	var pos []*ModelUserFeedRelation

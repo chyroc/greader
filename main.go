@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/chyroc/greader/adapter/sql_store"
+	"github.com/chyroc/greader/adapter_mysql"
 	"github.com/chyroc/greader/greader_api"
 )
 
@@ -16,7 +16,7 @@ func main() {
 	logger := greader_api.NewDefaultLogger()
 
 	dsn := "root:@tcp(127.0.0.1:3306)/greader?charset=utf8&parseTime=True&loc=Local"
-	db, err := sql_store.New(dsn, logger)
+	db, err := adapter_mysql.New(dsn, logger)
 	if err != nil {
 		log.Fatal(err)
 		return

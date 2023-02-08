@@ -1,4 +1,4 @@
-package sql_store
+package adapter_mysql
 
 import (
 	"gorm.io/driver/mysql"
