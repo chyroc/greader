@@ -11,7 +11,7 @@ import (
 //
 // i=tag:google.com,2005:reader/item/\(idHexString)
 
-func (r *Client) EditSubscriptionStatus(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
+func (r *GReader) EditSubscriptionStatus(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	err := r.editSubscriptionStatus(ctx, req)
 	if err != nil {
 		r.renderErr(ctx, writer, err)
@@ -20,7 +20,7 @@ func (r *Client) EditSubscriptionStatus(ctx context.Context, req HttpReader, wri
 	}
 }
 
-func (r *Client) editSubscriptionStatus(ctx context.Context, req HttpReader) error {
+func (r *GReader) editSubscriptionStatus(ctx context.Context, req HttpReader) error {
 	username, _ := r.getHeaderAuth(req)
 
 	entryIDs := getEntryHexIDs(req.FormList("i"))

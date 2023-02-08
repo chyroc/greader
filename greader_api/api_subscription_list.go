@@ -9,7 +9,7 @@ import (
 
 // api path: /reader/api/0/subscription/list
 
-func (r *Client) ListSubscription(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
+func (r *GReader) ListSubscription(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	res, err := r.listSubscription(ctx, req)
 	if err != nil {
 		r.renderErr(ctx, writer, err)
@@ -18,7 +18,7 @@ func (r *Client) ListSubscription(ctx context.Context, req HttpReader, writer ht
 	}
 }
 
-func (r *Client) listSubscription(ctx context.Context, req HttpReader) (*subscriptionList, error) {
+func (r *GReader) listSubscription(ctx context.Context, req HttpReader) (*subscriptionList, error) {
 	username, _ := r.getHeaderAuth(req)
 	r.log.Info(ctx, "[ListSubscription] username=%s", username)
 

@@ -15,7 +15,7 @@ import (
 // T=\(token)&output=json&\(idsToFetch)
 // i=tag:google.com,2005:reader/item/\(idHexString)
 
-func (r *Client) LoadItem(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
+func (r *GReader) LoadItem(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	res, err := r.loadItem(ctx, req)
 	if err != nil {
 		r.renderErr(ctx, writer, err)
@@ -24,7 +24,7 @@ func (r *Client) LoadItem(ctx context.Context, req HttpReader, writer http.Respo
 	}
 }
 
-func (r *Client) loadItem(ctx context.Context, req HttpReader) (*loadEntryList, error) {
+func (r *GReader) loadItem(ctx context.Context, req HttpReader) (*loadEntryList, error) {
 	username, _ := r.getHeaderAuth(req)
 	entryIDs := getEntryHexIDs(req.FormList("i"))
 	r.log.Info(ctx, "[LoadItem], username=%s, entryIDs=%+v", username, entryIDs)

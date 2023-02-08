@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-type Client struct {
+type GReader struct {
 	backend     IGReaderBackend
 	log         ILogger
 	fetchLogger ILogger
@@ -17,15 +17,15 @@ type ClientConfig struct {
 	FetchLogger ILogger
 }
 
-func New(config *ClientConfig) *Client {
-	return &Client{
+func New(config *ClientConfig) *GReader {
+	return &GReader{
 		backend:     config.Backend,
 		log:         config.Logger,
 		fetchLogger: config.FetchLogger,
 	}
 }
 
-func (r *Client) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+func (r *GReader) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	method := request.Method
 	path := request.URL.Path
 	req := WrapStdHttpRequest(request)
@@ -41,7 +41,7 @@ func (r *Client) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func (r *Client) Routers() map[[2]string]func(ctx context.Context, reader HttpReader, writer http.ResponseWriter) {
+func (r *GReader) Routers() map[[2]string]func(ctx context.Context, reader HttpReader, writer http.ResponseWriter) {
 	return map[[2]string]func(ctx context.Context, reader HttpReader, writer http.ResponseWriter){
 		// auth
 		{"POST", "/accounts/ClientLogin"}: r.Auth, // POST

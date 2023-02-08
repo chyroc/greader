@@ -24,7 +24,7 @@ import (
 // move tag
 // T=\(token)&s=\(subscriptionID)&ac=edit&r=user/-/label/\(fromLabel)&a=user/-/label/\(toLabel)
 
-func (r *Client) EditSubscription(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
+func (r *GReader) EditSubscription(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	err := r.editSubscription(ctx, req)
 	if err != nil {
 		r.renderErr(ctx, writer, err)
@@ -33,7 +33,7 @@ func (r *Client) EditSubscription(ctx context.Context, req HttpReader, writer ht
 	}
 }
 
-func (r *Client) editSubscription(ctx context.Context, req HttpReader) error {
+func (r *GReader) editSubscription(ctx context.Context, req HttpReader) error {
 	username, _ := r.getHeaderAuth(req)
 
 	feedID := getFeedID(req.FormString("s"))

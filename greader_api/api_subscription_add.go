@@ -11,7 +11,7 @@ import (
 
 // args: T=\(token)&quickadd=\(encodedFeedURL)
 
-func (r *Client) AddSubscription(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
+func (r *GReader) AddSubscription(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	res, err := r.addSubscription(ctx, req)
 	if err != nil {
 		r.renderErr(ctx, writer, err)
@@ -20,7 +20,7 @@ func (r *Client) AddSubscription(ctx context.Context, req HttpReader, writer htt
 	}
 }
 
-func (r *Client) addSubscription(ctx context.Context, req HttpReader) (*AddSubscriptionResult, error) {
+func (r *GReader) addSubscription(ctx context.Context, req HttpReader) (*AddSubscriptionResult, error) {
 	username, _ := r.getHeaderAuth(req)
 	feedURL := req.FormString("quickadd")
 	r.log.Info(ctx, "[AddSubscription] username=%s, feedURL=%s", username, feedURL)

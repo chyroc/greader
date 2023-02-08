@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (r *Client) Token(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
+func (r *GReader) Token(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	_, authInfo := r.getHeaderAuth(req)
 
 	writer.Header().Set("Content-Type", "text/html; charset=UTF-8")

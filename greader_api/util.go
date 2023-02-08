@@ -9,14 +9,14 @@ import (
 	"strings"
 )
 
-func (r *Client) renderErr(ctx context.Context, writer http.ResponseWriter, err error) {
+func (r *GReader) renderErr(ctx context.Context, writer http.ResponseWriter, err error) {
 	if err != nil {
 		writer.WriteHeader(400)
 		writer.Write([]byte(err.Error()))
 	}
 }
 
-func (r *Client) renderData(ctx context.Context, writer http.ResponseWriter, data interface{}) {
+func (r *GReader) renderData(ctx context.Context, writer http.ResponseWriter, data interface{}) {
 	if data == nil {
 		writer.WriteHeader(200)
 		return
@@ -31,7 +31,7 @@ func (r *Client) renderData(ctx context.Context, writer http.ResponseWriter, dat
 	}
 }
 
-func (r *Client) mustJson(req HttpReader) error {
+func (r *GReader) mustJson(req HttpReader) error {
 	if res := req.QueryString("output"); res != "" && res != "json" {
 		panic("output must be json")
 		return errors.New("output must be json")

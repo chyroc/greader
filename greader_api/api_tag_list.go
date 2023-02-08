@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (r *Client) TagList(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
+func (r *GReader) TagList(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	res, err := r.tagList(ctx, req)
 	if err != nil {
 		r.renderErr(ctx, writer, err)
@@ -14,7 +14,7 @@ func (r *Client) TagList(ctx context.Context, req HttpReader, writer http.Respon
 	}
 }
 
-func (r *Client) tagList(ctx context.Context, req HttpReader) (*tagList, error) {
+func (r *GReader) tagList(ctx context.Context, req HttpReader) (*tagList, error) {
 	if err := r.mustJson(req); err != nil {
 		return nil, err
 	}

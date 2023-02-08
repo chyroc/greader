@@ -13,7 +13,7 @@ import (
 //
 // &s=user/-/label/%E5%88%86%E7%B1%BB2&dest=user/-/label/%E5%88%86%E7%B1%BB2asdf
 
-func (r *Client) TagRename(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
+func (r *GReader) TagRename(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	username, _ := r.getHeaderAuth(req)
 
 	oldTagName := getUserLabelName(req.FormString("s"))

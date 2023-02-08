@@ -13,7 +13,7 @@ import (
 //
 // &s=user/-/label/分类2asdf
 
-func (r *Client) TagDelete(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
+func (r *GReader) TagDelete(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	err := r.tagDelete(ctx, req)
 	if err != nil {
 		r.renderErr(ctx, writer, err)
@@ -22,7 +22,7 @@ func (r *Client) TagDelete(ctx context.Context, req HttpReader, writer http.Resp
 	}
 }
 
-func (r *Client) tagDelete(ctx context.Context, req HttpReader) error {
+func (r *GReader) tagDelete(ctx context.Context, req HttpReader) error {
 	username, _ := r.getHeaderAuth(req)
 
 	tagName := getUserLabelName(req.FormString("s"))

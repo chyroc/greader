@@ -18,7 +18,7 @@ const (
 )
 const readingList = "user/-/state/com.google/reading-list"
 
-func (r *Client) ListItemIDs(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
+func (r *GReader) ListItemIDs(ctx context.Context, req HttpReader, writer http.ResponseWriter) {
 	res, err := r.listItemIDs(ctx, req)
 	if err != nil {
 		r.renderErr(ctx, writer, err)
@@ -27,7 +27,7 @@ func (r *Client) ListItemIDs(ctx context.Context, req HttpReader, writer http.Re
 	}
 }
 
-func (r *Client) listItemIDs(ctx context.Context, req HttpReader) (*listEntryIDsResponse, error) {
+func (r *GReader) listItemIDs(ctx context.Context, req HttpReader) (*listEntryIDsResponse, error) {
 	username, _ := r.getHeaderAuth(req)
 	s := req.QueryString("s")
 	xt := req.QueryString("xt")

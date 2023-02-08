@@ -1,4 +1,4 @@
-package server
+package server_app
 
 import (
 	"github.com/gin-gonic/gin"

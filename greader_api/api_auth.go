@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (r *Client) Auth(ctx context.Context, reader HttpReader, writer http.ResponseWriter) {
+func (r *GReader) Auth(ctx context.Context, reader HttpReader, writer http.ResponseWriter) {
 	authInfo, err := r.auth(ctx, reader)
 	if err != nil {
 		r.renderErr(ctx, writer, err)
@@ -16,7 +16,7 @@ func (r *Client) Auth(ctx context.Context, reader HttpReader, writer http.Respon
 	}
 }
 
-func (r *Client) auth(ctx context.Context, reader HttpReader) (string, error) {
+func (r *GReader) auth(ctx context.Context, reader HttpReader) (string, error) {
 	username := reader.FormString("Email")
 	password := reader.FormString("Passwd")
 	r.log.Info(ctx, "[auth] username=%s", username)
@@ -30,7 +30,7 @@ func (r *Client) auth(ctx context.Context, reader HttpReader) (string, error) {
 		"Auth=%s/%s\n", username, username, authInfo), nil
 }
 
-func (r *Client) getHeaderAuth(req HttpReader) (string, string) {
+func (r *GReader) getHeaderAuth(req HttpReader) (string, string) {
 	// Authorization:[GoogleLogin auth=admin/1664cfe9598edbc63fc0adf0d1464d98f42f4840]
 	authorization := req.HeaderString("Authorization")
 	if authorization == "" {

@@ -10,7 +10,7 @@ import (
 
 var p = gofeed.NewParser()
 
-func (r *Client) FetchRssBackend() {
+func (r *GReader) FetchRssBackend() {
 	go func() {
 		for {
 			_ = r.FetchRss()
@@ -19,7 +19,7 @@ func (r *Client) FetchRssBackend() {
 	}()
 }
 
-func (r *Client) FetchRss() error {
+func (r *GReader) FetchRss() error {
 	ctx := context.Background()
 
 	feedURLs, err := r.backend.ListFeedURL(ctx)
