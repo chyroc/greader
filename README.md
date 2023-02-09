@@ -23,7 +23,7 @@ docker run -d \
 - **Create `docker-compose.yml`**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/chyroc/greader/main/docker-compose.yml > docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/chyroc/greader/master/docker-compose.yml > docker-compose.yml
 ``
 ```
 
