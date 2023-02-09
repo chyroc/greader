@@ -69,6 +69,12 @@ greader-cli register -host <your greader host> -username <username> -password <p
 
 ![](./screenshot/list.png)
 
+## TODO
+
+- [ ] Newsletter Address
+- [ ] filter && action
+- [ ] import && export opml file
+
 ## Ref
 
 - https://ranchero.com/downloads/GoogleReaderAPI-2009.pdf
