@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  app:
+    image: greader
+    ports:
+      - "8081:8081"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: your-password
+      MYSQL_DATABASE: greader
+
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: your-password
+      MYSQL_DATABASE: greader
+
