@@ -18,7 +18,7 @@ func (r *App) Start(addr string) error {
 	return r.gin.Run(addr)
 }
 
-func New(dsn string) (*App, error) {
+func New(dsn string, disableRegister bool) (*App, error) {
 	// init app
 	// app := new(App)
 
@@ -59,7 +59,7 @@ func New(dsn string) (*App, error) {
 		// other api
 		v2 := api.Group("/v2")
 		{
-			v2.POST("/auth/register", apiRegister(backend))
+			v2.POST("/auth/register", apiRegister(backend, disableRegister))
 		}
 	}
 

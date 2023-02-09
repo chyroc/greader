@@ -14,6 +14,8 @@ type Config struct {
 	MySQLUsername string `loader:"env,key=MYSQL_USERNAME"`
 	MySQLPassword string `loader:"env,key=MYSQL_PASSWORD"`
 	MySQLDatabase string `loader:"env,key=MYSQL_DATABASE"`
+
+	DisableRegister bool `loader:"env,key=DISABLE_REGISTER"`
 }
 
 func main() {
@@ -23,7 +25,7 @@ func main() {
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", conf.MySQLUsername, conf.MySQLPassword, conf.MySQLHost, conf.MySQLDatabase)
-	app, err := server.New(dsn)
+	app, err := server.New(dsn, conf.DisableRegister)
 	if err != nil {
 		log.Fatal(err)
 	}

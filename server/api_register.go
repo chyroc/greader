@@ -11,8 +11,12 @@ type registerReq struct {
 	Password string `json:"password"`
 }
 
-func apiRegister(backend greader_api.IGReaderBackend) func(c *gin.Context) {
+func apiRegister(backend greader_api.IGReaderBackend, disableRegister bool) func(c *gin.Context) {
 	return func(c *gin.Context) {
+		if disableRegister {
+			c.JSON(400, gin.H{"error": "register is disabled"})
+			return
+		}
 		req := new(registerReq)
 		err := c.BindJSON(req)
 		if err != nil {
