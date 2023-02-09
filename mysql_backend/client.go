@@ -14,30 +14,30 @@ import (
 	"github.com/chyroc/greader/mysql_backend/pack"
 )
 
-type MySQLClient struct {
+type MySQLBackend struct {
 	db  *dal.Client
 	log greader_api.ILogger
 }
 
-var _ greader_api.IGReaderBackend = (*MySQLClient)(nil)
+var _ greader_api.IGReaderBackend = (*MySQLBackend)(nil)
 
-func New(dsn string, logger greader_api.ILogger) (*MySQLClient, error) {
+func New(dsn string, logger greader_api.ILogger) (*MySQLBackend, error) {
 	db, err := newDB(dsn)
 	if err != nil {
 		return nil, err
 	}
-	return &MySQLClient{db: dal.New(db), log: logger}, nil
+	return &MySQLBackend{db: dal.New(db), log: logger}, nil
 }
 
-func (r *MySQLClient) Login(ctx context.Context, username, password string) (string, error) {
+func (r *MySQLBackend) Login(ctx context.Context, username, password string) (string, error) {
 	return r.db.Login(username, password)
 }
 
-func (r *MySQLClient) Register(ctx context.Context, username, password string) error {
+func (r *MySQLBackend) Register(ctx context.Context, username, password string) error {
 	return r.db.CreateUser(username, password)
 }
 
-func (r *MySQLClient) ListTag(ctx context.Context, username string) ([]string, error) {
+func (r *MySQLBackend) ListTag(ctx context.Context, username string) ([]string, error) {
 	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (r *MySQLClient) ListTag(ctx context.Context, username string) ([]string, e
 	return tagNames, nil
 }
 
-func (r *MySQLClient) RenameTag(ctx context.Context, username, oldName, newName string) error {
+func (r *MySQLBackend) RenameTag(ctx context.Context, username, oldName, newName string) error {
 	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (r *MySQLClient) RenameTag(ctx context.Context, username, oldName, newName 
 	return r.db.RenameUserFeedTag(userID, oldName, newName)
 }
 
-func (r *MySQLClient) DeleteTag(ctx context.Context, username, name string) error {
+func (r *MySQLBackend) DeleteTag(ctx context.Context, username, name string) error {
 	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
@@ -71,7 +71,7 @@ func (r *MySQLClient) DeleteTag(ctx context.Context, username, name string) erro
 	return r.db.DeleteUserFeedTag(userID, name)
 }
 
-func (r *MySQLClient) ListSubscription(ctx context.Context, username string) ([]*greader_api.Subscription, error) {
+func (r *MySQLBackend) ListSubscription(ctx context.Context, username string) ([]*greader_api.Subscription, error) {
 	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (r *MySQLClient) ListSubscription(ctx context.Context, username string) ([]
 
 var feedParser = gofeed.NewParser()
 
-func (r *MySQLClient) AddSubscription(ctx context.Context, username, feedURL, homeURL, title string) (*greader_api.Subscription, error) {
+func (r *MySQLBackend) AddSubscription(ctx context.Context, username, feedURL, homeURL, title string) (*greader_api.Subscription, error) {
 	r.log.Info(ctx, "add subscription, username=%s, feedURL=%s", username, feedURL)
 
 	userID, err := r.validAuth(ctx, username)
@@ -135,7 +135,7 @@ func (r *MySQLClient) AddSubscription(ctx context.Context, username, feedURL, ho
 	}, nil
 }
 
-func (r *MySQLClient) DeleteSubscription(ctx context.Context, username, feedID string) error {
+func (r *MySQLBackend) DeleteSubscription(ctx context.Context, username, feedID string) error {
 	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
@@ -149,7 +149,7 @@ func (r *MySQLClient) DeleteSubscription(ctx context.Context, username, feedID s
 	return r.db.DeleteUserFeed(userID, id)
 }
 
-func (r *MySQLClient) UpdateSubscriptionTitle(ctx context.Context, username, feedID, title string) error {
+func (r *MySQLBackend) UpdateSubscriptionTitle(ctx context.Context, username, feedID, title string) error {
 	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
@@ -163,7 +163,7 @@ func (r *MySQLClient) UpdateSubscriptionTitle(ctx context.Context, username, fee
 	return r.db.UpdateUserFeedTitle(userID, id, title)
 }
 
-func (r *MySQLClient) UpdateSubscriptionTag(ctx context.Context, username, feedID string, addTag, removeTag string) error {
+func (r *MySQLBackend) UpdateSubscriptionTag(ctx context.Context, username, feedID string, addTag, removeTag string) error {
 	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
@@ -182,7 +182,7 @@ func (r *MySQLClient) UpdateSubscriptionTag(ctx context.Context, username, feedI
 	return nil
 }
 
-func (r *MySQLClient) LoadEntry(ctx context.Context, username string, entryIDs []string) ([]*greader_api.Entry, error) {
+func (r *MySQLBackend) LoadEntry(ctx context.Context, username string, entryIDs []string) ([]*greader_api.Entry, error) {
 	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return nil, err
@@ -245,7 +245,7 @@ func (r *MySQLClient) LoadEntry(ctx context.Context, username string, entryIDs [
 	return res, nil
 }
 
-func (r *MySQLClient) UpdateEntry(ctx context.Context, username string, entryIDs []string, read, starred *bool) error {
+func (r *MySQLBackend) UpdateEntry(ctx context.Context, username string, entryIDs []string, read, starred *bool) error {
 	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return err
@@ -256,7 +256,7 @@ func (r *MySQLClient) UpdateEntry(ctx context.Context, username string, entryIDs
 	return r.db.UpdateUserEntryStatus(userID, ids, read, starred)
 }
 
-func (r *MySQLClient) ListEntryIDs(ctx context.Context, username string, readed, starred *bool, feedID *string, since time.Time, count int64, continuation string) (string, []int64, error) {
+func (r *MySQLBackend) ListEntryIDs(ctx context.Context, username string, readed, starred *bool, feedID *string, since time.Time, count int64, continuation string) (string, []int64, error) {
 	userID, err := r.validAuth(ctx, username)
 	if err != nil {
 		return "", nil, err
@@ -272,12 +272,12 @@ func (r *MySQLClient) ListEntryIDs(ctx context.Context, username string, readed,
 	return "", entryIDs, nil
 }
 
-func (r *MySQLClient) ListFeedURL(ctx context.Context) ([]string, error) {
+func (r *MySQLBackend) ListFeedURL(ctx context.Context) ([]string, error) {
 	// r.log.Info(ctx, "[ListFeedURL]")
 	return r.db.ListFeedURL()
 }
 
-func (r *MySQLClient) AddFeedEntry(ctx context.Context, username *string, feedURL string, entryList []*greader_api.Entry) error {
+func (r *MySQLBackend) AddFeedEntry(ctx context.Context, username *string, feedURL string, entryList []*greader_api.Entry) error {
 	// r.log.Info(ctx, "[AddFeedEntry] feedURL=%s, entryList.len=%d", feedURL, len(entryList))
 	var userID int64
 	var err error
@@ -310,7 +310,7 @@ func (r *MySQLClient) AddFeedEntry(ctx context.Context, username *string, feedUR
 	return nil
 }
 
-func (r *MySQLClient) validAuth(ctx context.Context, username string) (int64, error) {
+func (r *MySQLBackend) validAuth(ctx context.Context, username string) (int64, error) {
 	if username == "" {
 		return 0, fmt.Errorf("auth error, username empty")
 	}
