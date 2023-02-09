@@ -55,6 +55,12 @@ func New(dsn string) (*App, error) {
 				})
 			}
 		}
+
+		// other api
+		v2 := api.Group("/v2")
+		{
+			v2.POST("/auth/register", apiRegister(backend))
+		}
 	}
 
 	return &App{

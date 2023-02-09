@@ -16,4 +16,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: your-password
       MYSQL_DATABASE: greader
-
+    volumes:
+      - "./mysql_backend/sql/all.sql:/docker-entrypoint-initdb.d/all.sql"
+    ports:
+      - "3306:3306"

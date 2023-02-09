@@ -53,10 +53,18 @@ MYSQL_HOST=xx \
 
 ## Usage
 
+### Register User
+
+```bash
+go install github.com/chyroc/greader/cli/greader-cli@latest
+
+greader-cli register -host <your greader host> -username <username> -password <password>
+```
+
 ### RSS API
 
 ```text
-http://<address>:8082/api/greader
+<your host>/api/greader
 ```
 
 ![](./screenshot/list.png)
