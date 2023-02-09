@@ -6,7 +6,7 @@ import (
 
 	"github.com/chyroc/go-loader"
 
-	"github.com/chyroc/greader/server_app"
+	"github.com/chyroc/greader/server"
 )
 
 type Config struct {
@@ -23,7 +23,7 @@ func main() {
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", conf.MySQLUsername, conf.MySQLPassword, conf.MySQLHost, conf.MySQLDatabase)
-	app, err := server_app.New(dsn)
+	app, err := server.New(dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
