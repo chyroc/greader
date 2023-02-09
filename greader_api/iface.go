@@ -6,8 +6,12 @@ import (
 )
 
 type IGReaderBackend interface {
+	// account
+
 	// Login check username and password, return token
 	Login(ctx context.Context, username, password string) (string, error)
+	// Register register a new user
+	Register(ctx context.Context, username, password string) error
 
 	// tag
 

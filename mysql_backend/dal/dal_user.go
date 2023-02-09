@@ -2,6 +2,8 @@ package dal
 
 import (
 	"errors"
+
+	"github.com/chyroc/greader/mysql_backend/internal"
 )
 
 type ModelUser struct {
@@ -25,7 +27,8 @@ func (r *Client) GetUser(username string) (*ModelUser, error) {
 	return pos[0], nil
 }
 
-func (r *Client) Login(username, hash string) (string, error) {
+func (r *Client) Login(username, password string) (string, error) {
+	hash := internal.CalSha1(username + ":" + password)
 	var pos []*ModelUser
 	if err := r.db.
 		Where("username = ? and hash = ?", username, hash).
@@ -35,4 +38,14 @@ func (r *Client) Login(username, hash string) (string, error) {
 		return "", errors.New("invalid userID or password")
 	}
 	return hash, nil
+}
+
+func (r *Client) CreateUser(username, password string) error {
+	hash := internal.CalSha1(username + ":" + password)
+
+	po := &ModelUser{
+		Username: username,
+		Hash:     hash,
+	}
+	return r.db.Create(po).Error
 }

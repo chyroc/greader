@@ -30,7 +30,11 @@ func New(dsn string, logger greader_api.ILogger) (*MySQLClient, error) {
 }
 
 func (r *MySQLClient) Login(ctx context.Context, username, password string) (string, error) {
-	return r.db.Login(username, internal.CalSha1(username+":"+password))
+	return r.db.Login(username, password)
+}
+
+func (r *MySQLClient) Register(ctx context.Context, username, password string) error {
+	return r.db.CreateUser(username, password)
 }
 
 func (r *MySQLClient) ListTag(ctx context.Context, username string) ([]string, error) {
