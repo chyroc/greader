@@ -7,7 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-
   run:
     runs-on: ubuntu-latest
     timeout-minutes: 30

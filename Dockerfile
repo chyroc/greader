@@ -11,6 +11,10 @@ RUN test -e /go/bin/greader
 
 FROM alpine:latest
 
+LABEL org.opencontainers.image.source=https://github.com/chyroc/greader
+LABEL org.opencontainers.image.description="RSS service, providing api similar to google reader."
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+
 COPY --from=build /go/bin/greader /bin/greader
 
 CMD ["/bin/greader"]
