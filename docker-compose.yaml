@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   app:
-    image: greader
+    image: ghcr.io/chyroc/greader:latest
     ports:
       - "8081:8081"
     environment:

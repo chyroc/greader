@@ -15,7 +15,7 @@ docker run -d \
   -e MYSQL_PASSWORD=xx \
   -e MYSQL_DATABASE=xx \
   -p 8081:8081 \
-  chyroc/greader:latest
+  ghcr.io/chyroc/greader:latest
 ```
 
 ### By Docker Compose
