@@ -7,7 +7,7 @@ import (
 )
 
 func registerAPiRoute(ginIns *gin.Engine, greaderIns *greader_api.GReader) {
-	// gin router
+	// Gin router
 	api := ginIns.Group("/api")
 	{
 		greaderAPI := api.Group("/greader")

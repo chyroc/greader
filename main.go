@@ -15,7 +15,6 @@ func main() {
 		Description: "RSS service, providing api similar to google reader.",
 		Commands: []*cli.Command{
 			app.StartServer(),
-			app.Register(),
 		},
 	}
 	if err := appCli.Run(os.Args); err != nil {

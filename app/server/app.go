@@ -8,14 +8,10 @@ import (
 )
 
 type App struct {
-	gin     *gin.Engine
+	Gin     *gin.Engine
 	logger  greader_api.ILogger
-	backend greader_api.IGReaderBackend
+	Backend greader_api.IGReaderBackend
 	greader *greader_api.GReader
-}
-
-func (r *App) Start(addr string) error {
-	return r.gin.Run(addr)
 }
 
 func New(dsn string) (*App, error) {
@@ -25,11 +21,11 @@ func New(dsn string) (*App, error) {
 	// init logger
 	logger := greader_api.NewDefaultLogger()
 
-	// init gin
+	// init Gin
 	ginIns := gin.New()
 	ginIns.Use(Log(logger))
 
-	// backend
+	// Backend
 	backend, err := mysql_backend.New(dsn, logger)
 	if err != nil {
 		return nil, err
@@ -46,9 +42,9 @@ func New(dsn string) (*App, error) {
 	registerAPiRoute(ginIns, greaderIns)
 
 	return &App{
-		gin:     ginIns,
+		Gin:     ginIns,
 		logger:  logger,
-		backend: backend,
+		Backend: backend,
 		greader: greaderIns,
 	}, nil
 }

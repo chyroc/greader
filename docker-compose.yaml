@@ -10,6 +10,8 @@ services:
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: your-password
       MYSQL_DATABASE: greader
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: greader-password
       restart: always
     depends_on:
       mysql:
