@@ -11,8 +11,6 @@ type Config struct {
 	MySQLUsername string `loader:"env,key=MYSQL_USERNAME"`
 	MySQLPassword string `loader:"env,key=MYSQL_PASSWORD"`
 	MySQLDatabase string `loader:"env,key=MYSQL_DATABASE"`
-
-	DisableRegister bool `loader:"env,key=DISABLE_REGISTER"`
 }
 
 func loadConf() (*Config, error) {
