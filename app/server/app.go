@@ -18,7 +18,7 @@ func (r *App) Start(addr string) error {
 	return r.gin.Run(addr)
 }
 
-func New(dsn string, disableRegister bool) (*App, error) {
+func New(dsn string) (*App, error) {
 	// init app
 	// app := new(App)
 
@@ -43,25 +43,7 @@ func New(dsn string, disableRegister bool) (*App, error) {
 	})
 	greaderIns.FetchRssBackend()
 
-	// gin router
-	api := ginIns.Group("/api")
-	{
-		greaderAPI := api.Group("/greader")
-		{
-			for path, handler := range greaderIns.Routers() {
-				handler := handler
-				greaderAPI.Handle(path[0], path[1], func(c *gin.Context) {
-					handler(c, NewGinHttpReader(c), c.Writer)
-				})
-			}
-		}
-
-		// other api
-		v2 := api.Group("/v2")
-		{
-			v2.POST("/auth/register", apiRegister(backend, disableRegister))
-		}
-	}
+	registerAPiRoute(ginIns, greaderIns)
 
 	return &App{
 		gin:     ginIns,

@@ -2,7 +2,7 @@
 
 RSS service, providing api similar to google reader.
 
-## Deploy
+## Start Server
 
 ### By Docker
 
@@ -48,17 +48,42 @@ MYSQL_HOST=xx \
   MYSQL_USERNAME=xx \
   MYSQL_PASSWORD=xx \
   MYSQL_DATABASE=xx \
-  greader
+  greader start
 ```
 
-## Usage
+## Register User
 
-### Register User
+### By Docker
+
+- **Run**
 
 ```bash
-go install github.com/chyroc/greader/cli/greader-cli@latest
+docker run -d \
+  -e MYSQL_HOST=xx \
+  -e MYSQL_USERNAME=xx \
+  -e MYSQL_PASSWORD=xx \
+  -e MYSQL_DATABASE=xx \
+  -p 8081:8081 \
+  ghcr.io/chyroc/greader:latest \
+  greader register -username <username> -password <password>
+```
 
-greader-cli register -host <your greader host> -username <username> -password <password>
+### By Binary
+
+- **Install Binary**
+
+```bash
+go install github.com/chyroc/greader@latest
+```
+
+- **Run**
+
+```bash
+MYSQL_HOST=xx \
+  MYSQL_USERNAME=xx \
+  MYSQL_PASSWORD=xx \
+  MYSQL_DATABASE=xx \
+  greader register -username <username> -password <password>
 ```
 
 ### RSS API

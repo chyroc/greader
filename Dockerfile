@@ -17,4 +17,4 @@ LABEL org.opencontainers.image.licenses="Apache-2.0"
 
 COPY --from=build /go/bin/greader /bin/greader
 
-CMD ["/bin/greader"]
+CMD /bin/greader start
